@@ -1,0 +1,165 @@
+        | Mod 0002 - 303 slide. See mod.toml and design.md.
+        |
+        | Two hooks in the trig routine (0x400779f0, args track/pattern/step).
+        | Here d2 = step, a5 = track, a2 = the pattern's base, a3 = track * 945,
+        | and d3 = the step's trig flags, which become the trig event's flags
+        | (bit 4 = note slide).
+        |
+        | How stock slides: while playing a note it looks ahead to the next trig;
+        | if that trig carries the slide flag and this note's LEN reaches it,
+        | the next step is stored as the track's legato target (0x80006090 +
+        | track). When the target plays with its slide flag, stock clears the
+        | envelope retrigger bits (0x1c0): the note glides, legato.
+        |
+        | With the track's SLD on (kit byte 26 + 6t + 5, set by 0007's FUNC
+        | layer) the slide trig is read one note earlier:
+        |   slide_gate (after LEN is resolved):
+        |   - slide FROM: this note's slide flag (bit 4 of d3) is replaced by
+        |     the previous trig's;
+        |   - tie: if THIS step carries the slide flag, its LEN is raised to
+        |     reach the next trig plus a quarter step;
+        |   look_gate (the look-ahead's "does the next trig slide?" test):
+        |   - asks "does THIS step slide?" instead, so the next trig becomes the
+        |     legato target and keeps its envelope going.
+
+
+        .include "symbols.inc"
+
+        .equ    TRK_BASE,     26
+        .equ    TRK_SIZE,     6
+        .equ    F_SLD,        5
+        .equ    SLIDE_BIT,    4
+        .equ    TRIG_BITS,    3
+        .equ    STEP_TICKS,   2700000              | LEN 14 ("1/16") = one step
+        .equ    OVERLAP,      675000               | a quarter step
+        .equ    LEN_TICKS,    0x401f16a4           | ticks(LEN) = LEN_TICKS[LEN + 1]
+        .equ    LEN_MAX,      126                  | 127 is INF
+        .equ    PAT_LEN_MODE, 93900                | pattern byte: per-track lengths?
+        .equ    PAT_LEN,      93894                | pattern length (word)
+        .equ    TRK_LEN,      453                  | track length (word), per-track mode
+        .equ    MAX_STEPS,    64
+
+        .text
+
+        .align  2
+slide_gate:
+        lea     -32(%sp),%sp
+        movem.l %d0-%d1/%d4/%d6-%d7/%a0-%a1/%a4,(%sp)
+        jbsr   sld_on
+        beq.w   99f
+
+        lea     (%a2,%a3.l),%a0                   | the track's pattern data
+        move.l  #PAT_LEN_MODE,%d0                 | the track length, as stock
+        tst.b   (%a2,%d0.l)                       | reads it (0x40077d50)
+        beq.s   1f
+        mvs.w   TRK_LEN(%a0),%d6
+        bra.s   2f
+1:      move.l  #PAT_LEN,%d0
+        mvs.w   (%a2,%d0.l),%d6
+2:      moveq   #2,%d0
+        cmp.l   %d0,%d6
+        blt.w   99f
+        moveq   #MAX_STEPS,%d0
+        cmp.l   %d0,%d6
+        ble.s   3f
+        move.l  %d0,%d6                           | length
+
+        | slide from the previous trig
+3:      move.l  %d2,%d7
+        move.l  %d6,%d4
+        subq.l  #1,%d4                            | steps to look at
+4:      subq.l  #1,%d7
+        bpl.s   5f
+        add.l   %d6,%d7                           | wrap
+5:      move.w  (%a0,%d7.l*2),%d0
+        moveq   #TRIG_BITS,%d1
+        and.l   %d0,%d1
+        bne.s   6f
+        subq.l  #1,%d4
+        bne.s   4b
+        moveq   #0,%d0                            | no other trig: no slide in
+6:      bclr    #SLIDE_BIT,%d3
+        btst    #SLIDE_BIT,%d0
+        beq.s   7f
+        bset    #SLIDE_BIT,%d3
+
+        | tie this note into the next trig if it is the one sliding out
+7:      move.w  (%a0,%d2.l*2),%d0
+        btst    #SLIDE_BIT,%d0
+        beq.s   99f
+        move.l  %d2,%d7
+        moveq   #1,%d1                            | distance in steps
+        move.l  %d6,%d4
+        subq.l  #1,%d4
+8:      addq.l  #1,%d7
+        cmp.l   %d6,%d7
+        blt.s   9f
+        sub.l   %d6,%d7                           | wrap
+9:      move.w  (%a0,%d7.l*2),%d0
+        andi.l  #TRIG_BITS,%d0
+        bne.s   10f
+        addq.l  #1,%d1
+        subq.l  #1,%d4
+        bne.s   8b
+        bra.s   99f                               | no other trig: leave LEN alone
+10:     move.l  #STEP_TICKS,%d0
+        muls.l  %d1,%d0
+        addi.l  #OVERLAP,%d0                      | ticks needed
+        lea     LEN_TICKS+4,%a1
+        moveq   #0,%d4                            | LEN
+11:     cmp.l   (%a1)+,%d0
+        bls.s   12f
+        addq.l  #1,%d4
+        moveq   #LEN_MAX,%d1
+        cmp.l   %d1,%d4
+        ble.s   11b
+        move.l  %d1,%d4
+12:     move.l  %d4,116(%sp)                      | LEN: the host's %sp@(84) + 32
+
+99:     movem.l (%sp),%d0-%d1/%d4/%d6-%d7/%a0-%a1/%a4
+        lea     32(%sp),%sp
+        lea     (%a2,%a3.l),%a0                   | displaced
+        tst.b   458(%a0)                          | displaced (its flags are used)
+        jmp     slide_resume
+
+        | The look-ahead, d0 = the next trig's step. Stock goes on with
+        | `movea.w (%a0,%a2.l),%a1` (the next trig's flags), tests bit 4 and
+        | branches to look_none (no legato target) if clear, else continues at
+        | look_slide. d6, d7, a0 and a1 are all reloaded by stock after this.
+        .align  2
+look_gate:
+        lea     (%a3,%d0.l*2),%a0                 | displaced
+        moveq   #16,%d6                           | displaced
+        jbsr   sld_on
+        bne.s   1f
+        jmp     look_resume                       | stock: the next trig decides
+1:      movea.w (%a0,%a2.l),%a1                   | the next trig's flags, as stock
+        lea     (%a3,%d2.l*2),%a0
+        move.w  (%a0,%a2.l),%d7                   | this step's
+        btst    #SLIDE_BIT,%d7
+        bne.s   2f
+        jmp     look_none
+2:      jmp     look_slide
+
+        | sld_on: Z clear if track a5 is a synth track with SLD set. Uses d7
+        | and a1 only.
+sld_on:
+        move.l  %a5,%d7
+        cmpi.l  #3,%d7
+        bhi.s   9f
+        .if     P_ALWAYS_ON                       | a build without the DIST page:
+        moveq   #1,%d7                            | every synth track slides the
+        rts                                       | 303 way (Z clear)
+        .endif
+        move.l  project_ptr,%d7
+        beq.s   9f
+        move.l  %d7,%a1
+        move.l  PROJECT_KIT_FX_STORAGE(%a1),%d7
+        beq.s   9f
+        move.l  %d7,%a1
+        move.l  %a5,%d7
+        mulu.w  #TRK_SIZE,%d7
+        tst.b   TRK_BASE+F_SLD(%a1,%d7.l)
+        rts
+9:      moveq   #0,%d7
+        rts

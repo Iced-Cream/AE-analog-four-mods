@@ -1,0 +1,34 @@
+[mod]
+id      = "0008-pages"
+title   = "Extra pages: a DIST page behind AMP for the digital path, drive and slide settings"
+
+# Not in the default build: `make full` builds it with 0001, 0002, 0006, 0007.
+enabled = false
+
+# Exports shared_view_page and shared_draw_view for 0007's gates (build/shared.inc).
+provides_shared = true
+
+# re-only | built | hardware-verified | retracted
+status  = "hardware-verified"
+
+summary = """
+Press AMP twice: the DIST page. Its knobs are the digital path's and the slide's
+settings (DIG CHR DRV BIT SRR / LEV SLD), saved per kit. No p-locks on this page
+(holding a trig and turning a knob does nothing; the same for 0010's WAV knob on
+the NOISE page). The page is a stock
+ParameterPageView on the blank page 17, filed under a new slot 29 and added to the
+AMP key's slot list.
+"""
+
+[sources]
+stub = "stub.s"
+
+[requires]
+symbols = [
+  "ppv_ctor",
+  "view_wrap",
+  "page_build_resume",
+  "knob_draw_resume",
+  "held_resume",
+  "encoder_exit",
+]

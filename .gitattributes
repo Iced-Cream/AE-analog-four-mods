@@ -1,0 +1,2 @@
+# Keep Unix line endings everywhere: make, sh and git apply break on CRLF.
+* text=auto eol=lf

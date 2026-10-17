@@ -1,0 +1,42 @@
+[mod]
+id      = "0002-slide-303"
+title   = "303 slide: a slide trig glides from its note into the next, with the note tied"
+
+# Not in the default build: `make full` builds it with 0001, 0006, 0007 and 0008.
+# Its per-track switch, SLD, is on the DIST page (0007 + 0008). Without them, build
+# it with always_on = 1 (`make slide`) or every track keeps the stock slide.
+enabled = false
+
+# re-only | built | hardware-verified | retracted
+status  = "hardware-verified"
+
+summary = """
+Per track, SLD off = stock A4 slide ("slide to": the slide trig is on the note you
+glide INTO, and the previous note must overlap it). SLD on = 303 slide: put the
+slide trig on the note you glide FROM. That note is held until the next trig (plus
+a quarter step), and the next note glides into it legato. Glide time is still the
+sound's SLI. Notes already holding a long LEN keep it unless they carry a slide trig.
+"""
+
+# A "303 mode" (SLD 2+: synth parameters rescaled to 303 ranges on their way to the
+# voice engine, plus a 303 accent) was built on 2026-10-11 and rolled back the same
+# day after a messy hardware test. Its research (engine_set_param, the trig lock
+# list) stays in re/symbols.toml.
+
+[params]
+# 0 = per-track SLD switch on the DIST page (0007 + 0008).
+# 1 = no switch: every synth track uses the 303 slide - for a build without the DIST
+#     page (`make slide`).
+always_on = 0
+
+[sources]
+stub = "stub.s"
+
+[requires]
+symbols = [
+  "project_ptr",
+  "slide_resume",
+  "look_resume",
+  "look_slide",
+  "look_none",
+]

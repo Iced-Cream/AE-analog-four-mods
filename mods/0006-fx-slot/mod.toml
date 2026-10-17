@@ -1,0 +1,38 @@
+[mod]
+id      = "0006-fx-slot"
+title   = "Kit FX persistence: the kit's spare FX words survive copies, saves and power cycles"
+
+# Not in the default build: `make full` builds it with 0001, 0002 and 0007,
+# whose settings live in these words.
+enabled = false
+
+# re-only | built | hardware-verified | retracted
+status  = "hardware-verified"
+
+summary = """
+The kit's FX block has 16 unused words (container 7 indices 10..25, bytes 24..55).
+0007 (and 0002 and 0010 through it) keep their per-kit settings there. Stock copies FX blocks
+word by word and skips those words, so they never survived a save. This mod makes
+all three FX copiers carry them. Kits stay stock-compatible: stock simply drops the
+extra settings.
+
+History: this mod started as the "FX slot" - a comb filter replacing the chorus,
+type set from the CHORUS page. The comb worked but left unwanted tails, was
+shelved, and was taken out of the build on 2026-10-11 to free cave space; its code
+is kept, with restore notes, in shelved/0006-comb-v1.s.
+"""
+
+# Persistence: stock copies the kit's FX block word by word and skips words 10..25,
+# so they did not survive a save and power cycle (hardware, 2026-10-10). The save
+# path is fx_copy_v4 (working kit -> storage kit); with its gate settings survive a
+# power cycle (hardware, 2026-10-10).
+
+[sources]
+stub = "stub.s"
+
+[requires]
+symbols = [
+  "fx_copy_body",
+  "fx_copy_v2_body",
+  "fx_copy_v4_body",
+]

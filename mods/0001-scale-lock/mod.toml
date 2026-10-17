@@ -1,0 +1,37 @@
+[mod]
+id      = "0001-scale-lock"
+title   = "Scale lock: KEY SCALE restricts live notes and the NOTE encoder"
+
+enabled = true
+
+# re-only | built | hardware-verified | retracted
+status  = "hardware-verified"
+
+summary = """
+NOTE SETUP's KEY SCALE grows from OFF/MAJ/MIN to OFF + 35 scales (MAJ, MIN, DOR,
+PHRY, LYD, MIXO, LOCR, PNMI, PNMA ... LO37). Anything but OFF locks the track to KEY
+NOTE + KEY SCALE: notes played on the trig keys (and everything that records them)
+snap to the nearest in-scale note, and the TRIG page NOTE encoder steps from one
+in-scale note to the next. MAJ and MIN now restrict too. Settings are saved with the
+pattern; a pattern with a new scale opened on stock 1.55 reads KEY SCALE OFF.
+"""
+
+[sources]
+stub = "stub.s"
+
+[requires]
+symbols = [
+  "project_singleton",
+  "current_track_pattern",
+  "key_scale_get",
+  "key_note_get",
+  "key_scale_names",
+  "scale_table",
+  "scale_short_names",
+  "track_play_note_body",
+  "set_step_note_body",
+  "param_apply_delta_resume",
+  "key_scale_draw_resume",
+  "lock_delta_apply_body",
+  "lock_add_resume",
+]
