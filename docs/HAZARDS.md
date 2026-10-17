@@ -33,7 +33,14 @@ Hence:
 the C++ constructor table and `__bss_start`; `cave2` is the padding right after the
 embedded bootstrap image. The case for both is static - nothing points into them,
 nothing reads them as a table, they are below the `.bss` clear and the SRAM copies -
-and both have since run the mods on hardware. A third, `cave3`, is a 1 KB gap
+and both have since run the mods on hardware. On OS 1.56 the embedded bootstrap grew 1,424 B and fills what was
+`cave2` on 1.55, so on this branch `cave2`, `cave4`, `cave5` and `cave6` are DEAD
+CODE: four runs of routines the firmware contains but never calls (stock = "code" in
+the registry; the build checks a hash of their stock bytes before writing there).
+The case for them is static - no call, branch, pointer, vtable entry or switch-table
+case reaches them - plus emulator coverage: they never ran in seven long sessions
+that reached 540 KB of code. The first hardware run (2026-10-17, `make hard`) went
+through the whole checklist cleanly. A third, `cave3`, is a 1 KB gap
 between the chorus's lookup tables that no index can reach (0010 lives there, and
 its detour on the chorus clamps the one index that could). There is almost no room
 left: a new mod has to find space (`make cavescan` lists candidates, most of which

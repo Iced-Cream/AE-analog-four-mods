@@ -1,12 +1,15 @@
+# PORTED from the OS 1.55 registry (2026-10-17, docs/PORT-1.56.md). Addresses and
+# expect bytes are 1.56; comments may still cite the 1.55 addresses.
+#
 # Single source of truth for every scarce resource a mod can claim - Analog Four /
-# Analog Keys MK1, OS 1.55. Same rules as rytm1_mods-main's registry: tools/layout.py
+# Analog Keys MK1, OS 1.56. Same rules as rytm1_mods-main's registry: tools/layout.py
 # asserts that no two claims overlap and that every claim sits inside its pool;
 # tools/build.py checks every `expect` against the stock bytes before patching.
 #
 # owner = the mod directory name, or "reserved:<reason>".
 
 [meta]
-target = "OS1.55"
+target = "OS1.56"
 device = "Analog Four / Analog Keys MK1"
 
 # ---------------------------------------------------------------- the image
@@ -56,44 +59,86 @@ playing, step entry - with no fault.
 
 [[pool]]
 name   = "cave2"
-start  = 0x40233a40
-end    = 0x40234000          # exclusive; 1472 B
+start  = 0x400916c2
+end    = 0x400919b8          # exclusive; 758 B
+stock  = "code"
+expect_sha256 = "af8e8d3a67794fb50100912fb20e970ae0d4b1a91cd3ab3ba1d57ded830d85ec"
 status = "probably-verified"
 note   = """
-The A4 twin of the Rytm MK1's cave: padding right after the EMBEDDED BOOTSTRAP
-IMAGE, whose exclusive end 0x40233a30 is the flasher's loop bound (cmpil at
-0x401007d4), and before the UTF-16 USB strings at 0x40234000.
-
-Evidence: 0x40233a25..0x40234001 is zeros; the only word in the image pointing into
-0x40233a28..0x40234000 is that loop bound. The pool keeps 16 bytes clear of the
-image's end on purpose.
-
-Hardware, 2026-10-09: the 0004 probe ran from here (code and state written every
-audio interrupt) through a playing session with no fault and plausible readings.
+OS 1.56 dead code (docs/PORT-1.56.md, re/os156/deadscan.py): a 758 B function nothing references (64-bit arithmetic); its 1.55 twin 0x40091382 is dead too.
+Evidence: no branch or call target, no 32-bit word anywhere in the image, and no
+case of any of the 63 switch tables lands in 0x400916c2..0x400919b8; the code region
+has no other computed-jump form. Never executed in six emulator sessions on stock
+1.56 (80 G instructions, 540 KB of code covered: every page, menus, sequencer,
+keyboard, playback). The same routines are unreferenced in 1.55.
+Not yet run on hardware: if one were called after all, mod code would run instead.
 """
 
 [[pool]]
-name   = "cave3"                # the chorus gap
-start  = 0x401ee578
-end    = 0x401ee978          # exclusive; 1024 B
+name   = "cave3"
+start  = 0x401eeb08
+end    = 0x401eef08          # exclusive; 1024 B
 status = "probably-verified"
 note   = """
-1,024 zero bytes between the chorus's lookup tables (0x401edf78, 0x401ee178,
-0x401ee378 below, 0x401ee978 above), checked 2026-10-14:
-- No 32-bit word at any even offset in the image points into 0x401ee578..0x401ee978.
-- The chorus (0x400f7f6c..) indexes its tables by signed bytes (mvsb from
-  0x8000517e/80, x4): 0x401ee378 reaches at most 0x401ee574, and 0x401ee978 reaches
-  down into the gap's upper half only with a negative index - HPF's modulated value
-  (0x8000517e). Emulator, 2026-10-15: LFO1 at full depth and speed on HPF keeps it
-  within 0..127 (the engine clamps); and 0010's cho_gate clamps that load to >= 0,
-  so no index can reach the gap at all.
-- Emulator, 2026-10-14: no read or write of the whole 1 KB during a session that
-  played a pattern and swept every CHORUS, DELAY and REVERB knob to both ends.
-It is below __bss_start (0x40235000), so nothing clears it at boot.
+The chorus gap of 1.55 (0x401ee578), moved +1424 with the chorus tables: 1,024
+zero bytes, no word in the image points into it; the chorus code is identical
+(same signed-byte indexing), and 0010's cho_gate clamps the one index that
+could reach it.
 """
 
 
 # --------------------------------------------------------------------- claims
+
+[[pool]]
+name   = "cave4"
+start  = 0x40167326
+end    = 0x40167486          # exclusive; 352 B
+stock  = "code"
+expect_sha256 = "cb73b38b8e70c34deff867b97a980a5eff4568a448229894d90ac1b4df279e39"
+status = "probably-verified"
+note   = """
+OS 1.56 dead code (docs/PORT-1.56.md, re/os156/deadscan.py): 8 small string helpers beside string_from_cstr, none referenced.
+Evidence: no branch or call target, no 32-bit word anywhere in the image, and no
+case of any of the 63 switch tables lands in 0x40167326..0x40167486; the code region
+has no other computed-jump form. Never executed in six emulator sessions on stock
+1.56 (80 G instructions, 540 KB of code covered: every page, menus, sequencer,
+keyboard, playback). The same routines are unreferenced in 1.55.
+Not yet run on hardware: if one were called after all, mod code would run instead.
+"""
+
+[[pool]]
+name   = "cave5"
+start  = 0x4008e264
+end    = 0x4008e3bc          # exclusive; 344 B
+stock  = "code"
+expect_sha256 = "32a70d9b4376c16eedb4bdd9f9ac53b3e3cb8202b76f2097d3b02f55db979ebc"
+status = "probably-verified"
+note   = """
+OS 1.56 dead code (docs/PORT-1.56.md, re/os156/deadscan.py): 12 wrapper functions, none referenced.
+Evidence: no branch or call target, no 32-bit word anywhere in the image, and no
+case of any of the 63 switch tables lands in 0x4008e264..0x4008e3bc; the code region
+has no other computed-jump form. Never executed in six emulator sessions on stock
+1.56 (80 G instructions, 540 KB of code covered: every page, menus, sequencer,
+keyboard, playback). The same routines are unreferenced in 1.55.
+Not yet run on hardware: if one were called after all, mod code would run instead.
+"""
+
+[[pool]]
+name   = "cave6"
+start  = 0x400550a8
+end    = 0x400551e6          # exclusive; 318 B
+stock  = "code"
+expect_sha256 = "736fe0cfdeb24b09d15b9e23f5968bfb29a1a36ce1787ddbbc7cc8a84e16d8b4"
+status = "probably-verified"
+note   = """
+OS 1.56 dead code (docs/PORT-1.56.md, re/os156/deadscan.py): 11 small accessors, none referenced.
+Evidence: no branch or call target, no 32-bit word anywhere in the image, and no
+case of any of the 63 switch tables lands in 0x400550a8..0x400551e6; the code region
+has no other computed-jump form. Never executed in six emulator sessions on stock
+1.56 (80 G instructions, 540 KB of code covered: every page, menus, sequencer,
+keyboard, playback). The same routines are unreferenced in 1.55.
+Not yet run on hardware: if one were called after all, mod code would run instead.
+"""
 
 [[cave]]
 owner = "0001-scale-lock"
@@ -107,7 +152,7 @@ note  = "719 B: the six hooks (played notes, step entry, the NOTE encoder's thre
 # covers `linkw %fp,#-88; moveq #127,%d0` exactly; both are re-emitted.
 [[detour]]
 owner  = "0001-scale-lock"
-addr   = 0x400b942c
+addr   = 0x400b9818
 size   = 6
 expect = "4e56ffa8707f"
 entry  = "play_gate"
@@ -116,7 +161,7 @@ entry  = "play_gate"
 # across the prologue's lea and the first half of the moveml; both are re-emitted.
 [[detour]]
 owner  = "0001-scale-lock"
-addr   = 0x400ac540
+addr   = 0x400ac934
 size   = 6
 expect = "4feffff048d7041c"
 entry  = "step_gate"
@@ -127,7 +172,7 @@ entry  = "step_gate"
 # track's Level - NOTE is 19 - so this never fired; fixed 2026-10-09.)
 [[detour]]
 owner  = "0001-scale-lock"
-addr   = 0x40022f20
+addr   = 0x40022fb4
 size   = 6
 expect = "4feffff448d7040c"
 entry  = "note_delta_gate"
@@ -137,7 +182,7 @@ entry  = "note_delta_gate"
 # are re-emitted.
 [[detour]]
 owner  = "0001-scale-lock"
-addr   = 0x40023444
+addr   = 0x40023518
 size   = 6
 expect = "4feffff048d7041c"
 entry  = "lock_delta_gate"
@@ -149,7 +194,7 @@ entry  = "lock_delta_gate"
 # present verbatim.
 [[detour]]
 owner  = "0001-scale-lock"
-addr   = 0x40023afc
+addr   = 0x40023c38
 size   = 6
 expect = "4fef000cd085"
 entry  = "lock_add_gate"
@@ -161,7 +206,7 @@ reemit = false
 # new value), so the displaced pair is not present verbatim.
 [[detour]]
 owner  = "0001-scale-lock"
-addr   = 0x400d604a
+addr   = 0x400d64c6
 size   = 6
 expect = "206e00142f360cf4"
 entry  = "key_scale_name"
@@ -170,59 +215,6 @@ reemit = false
 # ------------------------------------------------------------ 0004 DSP probe
 # A measuring build (`make probe`), not in the default image. Its code is the first
 # to run from cave2.
-
-[[cave]]
-owner = "0004-dsp-probe"
-addr  = 0x40233a40
-size  = 0x100
-note  = "The load meter (interrupt entry and exit), its two readouts, the dry-path mute test and five longs of state."
-
-# audio_isr entry: lea %sp@(-236),%sp; moveml %d0-%fp,%sp@ - both re-emitted
-# before anything is touched.
-[[detour]]
-owner  = "0004-dsp-probe"
-addr   = 0x400fb0d6
-size   = 6
-expect = "4fefff1448d77fff"
-entry  = "isr_enter"
-
-# audio_isr exit: moveml %sp@(204),%d0-%d6/%a0, re-emitted after the measurement.
-[[detour]]
-owner  = "0004-dsp-probe"
-addr   = 0x400fda4c
-size   = 6
-expect = "4cef017f00cc"
-entry  = "isr_exit"
-
-# track_levels: the volume loaded for the dry VCA words only.
-[[detour]]
-owner  = "0004-dsp-probe"
-addr   = 0x400f445a
-size   = 6
-expect = "2012aa000800"
-entry  = "dry_gate"
-
-# NOTE SETUP's two quantize value draws show the load instead.
-[[patch]]
-owner       = "0004-dsp-probe"
-addr        = 0x400d5e9c
-size        = 4
-expect      = "4009eb1a"
-from_symbol = "load_avg"
-
-[[patch]]
-owner       = "0004-dsp-probe"
-addr        = 0x400d5f6a
-size        = 4
-expect      = "400b23ac"
-from_symbol = "load_peak_read"
-
-# ------------------------------------------------------------ 0006 FX persistence
-# Not in the default image (`make full`). In `cave` after 0001. (Until
-# 2026-10-11 this claim was 0x340 and also held the comb filter, now shelved in
-# shelved/0006-comb-v1.s. Its delay lines were DDR outside the image,
-# 0x46804000..0x4680c000, in the unreferenced gap between the chorus's 12 KB
-# (0x46800000..0x46803000, cleared by 0x400f7d92) and the reverb (0x46810000).)
 
 [[cave]]
 owner = "0006-fx-slot"
@@ -244,7 +236,7 @@ entry  = "copy_gate"
 # sources only, then lea %sp@(-36),%sp; moveml %d2-%d5/%a2-%fp,%sp@ re-emitted.
 [[detour]]
 owner  = "0006-fx-slot"
-addr   = 0x4000c920
+addr   = 0x4000c91a
 size   = 6
 expect = "4fefffdc48d77c3c"
 entry  = "copy2_gate"
@@ -268,24 +260,35 @@ entry  = "copy4_gate"
 # unreferenced gap (0x46803000..0x4680ffff).
 
 [[cave]]
-owner = "0007-digital-path"
-addr  = 0x40233a40
-size  = 0x5c0
-gate  = "chr"
-note  = "The dry mute, the FX block capture and distortion, and the FUNC layer (page_get_value, encoder and label gates, the layer table and its names)."
+owner   = "0007-digital-path"
+addr    = 0x400916c2
+size    = 0x2f6
+note    = "OS 1.56: the dry mute and the FX block capture/distortion (section .text) in dead code (cave2)."
 
-# HARD only (chr = 0): smaller.
 [[cave]]
-owner = "0007-digital-path"
-addr  = 0x40233a40
-size  = 0x500
-gate  = "!chr"
-note  = "As above, HARD only."
+owner   = "0007-digital-path"
+section = ".dsp2"
+addr    = 0x400550a8
+size    = 0x13e
+note    = "OS 1.56: the FX block output and the small shared helpers (fx_S, find, key_find) in dead code (cave6)."
 
-# track_levels: the dry volume load (as 0004's probe).
+[[cave]]
+owner   = "0007-digital-path"
+section = ".ui3"
+addr    = 0x40167326
+size    = 0x160
+note    = "OS 1.56: slot_of and the page_get_value / encoder gates in dead code (cave4)."
+
+[[cave]]
+owner   = "0007-digital-path"
+section = ".ui4"
+addr    = 0x4008e264
+size    = 0x158
+note    = "OS 1.56: the label gates, kit_notify, the layer table and its names in dead code (cave5)."
+
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x400f445a
+addr   = 0x400f48ee
 size   = 6
 expect = "2012aa000800"
 entry  = "dry_gate"
@@ -293,7 +296,7 @@ entry  = "dry_gate"
 # fx_block entry: lea %sp@(-140),%sp; moveml %d2-%d7/%a2-%fp,%sp@, re-emitted first.
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x400f849c
+addr   = 0x400f8930
 size   = 6
 expect = "4fefff7448d77cfc"
 entry  = "fxin_gate"
@@ -301,15 +304,15 @@ entry  = "fxin_gate"
 # fx_block after its output loop: movel %d0,0x415c0004, re-emitted first.
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x400f882c
+addr   = 0x400f8cc0
 size   = 6
-expect = "23c0415c0004"
+expect = "23c0415c0008"
 entry  = "fxout_gate"
 
 # page_get_value entry: lea %sp@(-12),%sp; moveml %d2-%d3/%a2,%sp@.
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x400238a6
+addr   = 0x400239e2
 size   = 6
 expect = "4feffff448d7040c"
 entry  = "pgv_gate"
@@ -317,7 +320,7 @@ entry  = "pgv_gate"
 # The encoder handler's call of param_apply_delta: moveal %a0@(88),%a0; jsr %a0@.
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x40025898
+addr   = 0x40025a56
 size   = 6
 expect = "206800584e90"
 entry  = "enc_gate"
@@ -325,7 +328,7 @@ entry  = "enc_gate"
 # param_label entry: movel %d3,%sp@-; movel %d2,%sp@-; movel %sp@(20),%d2.
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x4009b77c
+addr   = 0x4009bac4
 size   = 6
 expect = "2f032f02242f0014"
 entry  = "lbl_gate"
@@ -345,7 +348,7 @@ note  = "The slide gate in trig_fire: slide-from flag and the tie length; the lo
 # so the beqs after them sees the tst's flags.
 [[detour]]
 owner  = "0002-slide-303"
-addr   = 0x40077caa
+addr   = 0x40077fa0
 size   = 6
 expect = "41f2b8004a2801ca"
 entry  = "slide_gate"
@@ -354,7 +357,7 @@ entry  = "slide_gate"
 # re-emitted first.
 [[detour]]
 owner  = "0002-slide-303"
-addr   = 0x40078010
+addr   = 0x40078306
 size   = 6
 expect = "41f30a007c10"
 entry  = "look_gate"
@@ -373,7 +376,7 @@ note  = "The DIST page: its view's construction at startup, the AMP key's slot l
 # %fp@(8),%a0, both re-emitted around building slot 29's view.
 [[detour]]
 owner  = "0008-pages"
-addr   = 0x400be9ce
+addr   = 0x400bee4a
 size   = 6
 expect = "4fef000c206e0008"
 entry  = "page_build"
@@ -382,7 +385,7 @@ entry  = "page_build"
 # %fp@(43),%d0, both re-emitted.
 [[detour]]
 owner  = "0008-pages"
-addr   = 0x400230da
+addr   = 0x4002318e
 size   = 6
 expect = "4e56ffbc102e002b"
 entry  = "knob_gate"
@@ -390,7 +393,7 @@ entry  = "knob_gate"
 # The encoder handler's held-trig call: moveal %a0@(124),%a0; jsr %a0@.
 [[detour]]
 owner  = "0008-pages"
-addr   = 0x400258ac
+addr   = 0x40025a06
 size   = 6
 expect = "2068007c4e90"
 entry  = "held_gate"
@@ -399,7 +402,7 @@ entry  = "held_gate"
 # cmpil #295,%d0, re-emitted. On the DIST page it returns our knob names.
 [[detour]]
 owner  = "0007-digital-path"
-addr   = 0x4009b476
+addr   = 0x4009b7be
 size   = 6
 expect = "202f00080c8000000127"
 entry  = "sname_gate"
@@ -407,14 +410,14 @@ entry  = "sname_gate"
 # set_slot (0x400aa8c2): the clamp's two moveq #28 -> #29, so slot 29 is kept.
 [[patch]]
 owner   = "0008-pages"
-addr    = 0x400aa8dc
+addr    = 0x400aacc8
 size    = 2
 expect  = "701c"
 replace = "701d"
 
 [[patch]]
 owner   = "0008-pages"
-addr    = 0x400aa8e2
+addr    = 0x400aacce
 size    = 2
 expect  = "741c"
 replace = "741d"
@@ -423,24 +426,24 @@ replace = "741d"
 # -> amp_slots [10, 29]. The two pea operands, end first.
 [[patch]]
 owner       = "0008-pages"
-addr        = 0x400bdffc
+addr        = 0x400be478
 size        = 4
-expect      = "40187ffc"
+expect      = "4018858c"
 from_symbol = "amp_slots_end"
 
 [[patch]]
 owner       = "0008-pages"
-addr        = 0x400be002
+addr        = 0x400be47e
 size        = 4
-expect      = "40187ff8"
+expect      = "40188588"
 from_symbol = "amp_slots"
 
 # page_info(17) = 0x40194a14 + 44 * 17 = 0x40194d00, the blank descriptor: the name ...
 [[patch]]
 owner       = "0008-pages"
-addr        = 0x40194d00
+addr        = 0x40195290
 size        = 4
-expect      = "4019c01a"
+expect      = "4019c5aa"
 from_symbol = "s_dist"
 
 # ... and its ten knob ids: DIG CHR DRV BIT SRR / LEV SLD - - -, ids 50 92 94 95
@@ -448,7 +451,7 @@ from_symbol = "s_dist"
 # which 0007's layer table maps to its settings on this page.
 [[patch]]
 owner   = "0008-pages"
-addr    = 0x40194d04
+addr    = 0x40195294
 size    = 4
 expect  = "00000000"
 replace = "00000032"
@@ -457,7 +460,7 @@ replace = "00000032"
 # BIT SRR / LEV SLD; HARD only (chr = 0) the page closes up without CHR.
 [[patch]]
 owner   = "0007-digital-path"
-addr    = 0x40194d08
+addr    = 0x40195298
 size    = 24
 expect  = "000000000000000000000000000000000000000000000000"
 replace = "0000005c0000005e0000005f00000060000000620000003f"
@@ -465,7 +468,7 @@ gate    = "chr"
 
 [[patch]]
 owner   = "0007-digital-path"
-addr    = 0x40194d08
+addr    = 0x40195298
 size    = 24
 expect  = "000000000000000000000000000000000000000000000000"
 replace = "0000005e0000005f00000060000000620000003f00000000"
@@ -495,14 +498,14 @@ note  = "The noise-mix, fade-envelope and sound-converter gates. The oscillator 
 [[cave]]
 owner   = "0010-wave-osc"
 section = ".gap"
-addr    = 0x401ee578
+addr    = 0x401eeb08
 size    = 0x400
 note    = "The oscillator: two-wave blend, chords, fold, FM (sine at OSC2's pitch); the chorus index clamp."
 
 # The chorus's index load: mvsb 0x8000517e,%d0, re-emitted with a clamp to >= 0.
 [[detour]]
 owner  = "0010-wave-osc"
-addr   = 0x400f7f6c
+addr   = 0x400f8400
 size   = 6
 expect = "71398000517e"
 entry  = "cho_gate"
@@ -512,7 +515,7 @@ entry  = "cho_gate"
 # fade), so FAD is free to be their FM depth.
 [[detour]]
 owner  = "0010-wave-osc"
-addr   = 0x400f9c00
+addr   = 0x400fa094
 size   = 6
 expect = "41f980001be8"
 entry  = "fad_gate"
@@ -520,7 +523,7 @@ entry  = "fad_gate"
 # The noise generator's final mix: lea 0x800050e8,%a1, re-emitted.
 [[detour]]
 owner  = "0010-wave-osc"
-addr   = 0x400f9c4c
+addr   = 0x400fa0e0
 size   = 6
 expect = "43f9800050e8"
 entry  = "wave_gate"
@@ -540,14 +543,14 @@ entry  = "conv_gate"
 # chord type. 0007's layer table maps both to fields of the sound's word 103.
 [[patch]]
 owner   = "0010-wave-osc"
-addr    = 0x40194b58
+addr    = 0x401950e8
 size    = 4
 expect  = "00000000"
 replace = "0000005c"
 
 [[patch]]
 owner   = "0010-wave-osc"
-addr    = 0x40194b60
+addr    = 0x401950f0
 size    = 4
 expect  = "00000000"
 replace = "0000005e"
@@ -556,14 +559,14 @@ replace = "0000005e"
 # KEY SCALE range 0..2 -> 0..35, in the menu setter (both moveq of its clamp) ...
 [[patch]]
 owner   = "0001-scale-lock"
-addr    = 0x400b25e0
+addr    = 0x400b29d4
 size    = 2
 expect  = "7002"
 replace = "7023"
 
 [[patch]]
 owner   = "0001-scale-lock"
-addr    = 0x400b25e6
+addr    = 0x400b29da
 size    = 2
 expect  = "7402"
 replace = "7423"
@@ -581,14 +584,14 @@ replace = "7423"
 # then 2 - v != 0 -> MAJ, so 2 alone falls through to MIN.
 [[patch]]
 owner   = "0001-scale-lock"
-addr    = 0x40077758
+addr    = 0x40077a4e
 size    = 2
 expect  = "6714"
 replace = "6e20"
 
 [[patch]]
 owner   = "0001-scale-lock"
-addr    = 0x40077760
+addr    = 0x40077a56
 size    = 2
 expect  = "6618"
 replace = "660c"

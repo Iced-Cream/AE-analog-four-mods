@@ -28,7 +28,7 @@
         .equ    TAG_AMP,        0x36               | the AMP view's tag
         .equ    VIEW_SIZE,      0x260
         .equ    VIEW_MAP,       436                | controller + 436
-        .equ    PPV_VTABLE,     0x40170080         | plain ParameterPageView
+        .equ    PPV_VTABLE,     0x40170524         | plain ParameterPageView
         .equ    VIEW_PAGE,      128
 
         .text

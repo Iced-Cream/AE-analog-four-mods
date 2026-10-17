@@ -1,6 +1,6 @@
-# Analog Four / Analog Keys MK1 - OS 1.55 mods
+# Analog Four / Analog Keys MK1 - OS 1.56 mods
 
-A small build pipeline that patches the official Analog Four / Analog Keys MK1 OS 1.55
+A small build pipeline that patches the official Analog Four / Analog Keys MK1 OS 1.56
 firmware with extra features, and the mods themselves:
 
 | mod | what it does |
@@ -19,7 +19,7 @@ How to flash and get back to stock: [docs/FLASHING.md](docs/FLASHING.md).
 
 ## What you need
 
-- An Analog Four or Analog Keys **MK1** (not the MKII), and the official **OS 1.55**
+- An Analog Four or Analog Keys **MK1** (not the MKII), and the official **OS 1.56**
   `.syx` from Elektron's website. It is not included here: download it and put it in
   `stock/` (`stock/SHA256SUMS` lists the exact file the mods are built against).
 - A machine that can run the build: Linux, macOS, or Windows with WSL (Ubuntu).
@@ -33,7 +33,19 @@ routines. Every patched location is listed in `registry/allocations.toml` with t
 exact stock bytes it expects, and the build refuses to touch anything that does not
 match. `make verify` then reads the finished `.syx` back and checks every changed
 byte, the untouched bootstrap (the recovery menu), and each detour's return path.
-The firmware stays version 1.55, so going back to stock is a normal reinstall.
+The firmware stays version 1.56, so going back to stock is a normal reinstall.
+
+## OS versions
+
+Each OS has its own branch: **OS-1.56** (this one) and **OS-1.55**. The mods and how
+they work are the same; the firmware addresses, the free space they use and the
+stock file they are built from differ. Build the branch that matches the stock file
+you have. A build is a complete OS, so flashing an OS-1.55 build onto a unit running
+1.56 (or the reverse) changes its OS version - back up first.
+
+On 1.56 the bootstrap image grew into one of the free areas 1.55 builds used, so part
+of 0007 lives in routines the firmware contains but never calls (found by static
+analysis and checked in emulator sessions; see docs/PORT-1.56.md and docs/HAZARDS.md).
 
 ## Layout
 
@@ -44,15 +56,15 @@ registry/          allocations.toml: every patched address, its expected bytes, 
 re/                symbols.toml: the firmware addresses the mods use, with evidence
 tools/             build.py, verify.py, layout.py, symbols.py (+ dev tools)
 docs/              MANUAL, FLASHING, HAZARDS, research notes
-stock/             put the official OS 1.55 .syx here
+stock/             put the official OS 1.56 .syx here
 ```
 
 ## Status
 
-Every mod above has run on an Analog Four MK1, in the combinations `make full` and
-`make hard` build. The newest chord types (HDX, SW1, SW2) have so far only been
-checked in an emulator and against a model of the oscillator, not on the instrument.
-Other combinations build and verify, but have had less play time.
+On OS 1.56 the `make hard` build has run the whole first-flash checklist on an
+Analog Four MK1; `make full` (the three drive characters) has been checked in an
+emulator only. On OS 1.55 both have run on the instrument. Other combinations build
+and verify, but have had less play time.
 
 ## Thanks
 

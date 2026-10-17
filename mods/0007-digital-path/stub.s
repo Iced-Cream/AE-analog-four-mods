@@ -24,7 +24,7 @@
         .equ    F_SLD,      5
         .equ    FRAMES,     32
         .equ    FRAME_SIZE, 32                    | 8 codec slots of 32 bits
-        .equ    FX_STATE4,  0x415c0004            | what fx_block_tail stores
+        .equ    FX_STATE4,  0x415c0008            | what fx_block_tail stores
         .equ    CAP,        0x46804000            | captured tracks, 4 x 32 longs,
         .equ    HOLD,       0x4680c200            | and their DSP state: free DDR
                                                   | (unreferenced by stock). Not
@@ -387,6 +387,8 @@ fxin_gate:
         | gain is LEV * 13 / 128 (LEV 100 = 10.2), 127 = +2 dB over it.
         | The displaced store goes first; a0 and d1 must survive (stock stores
         | them next).
+
+        .section .dsp2,"ax"
         | ------------------------------------------------------------------
         .align  2
 fxout_gate:
@@ -475,6 +477,8 @@ key_find:
         | (negative for a sound's WAV byte), d1 = XOR, a1 = its entry; or d0 = 0
         | if the knob is not ours on this view's page. Per-track and sound
         | entries use the view's track and refuse the FX track.
+
+        .section .ui3,"ax"
         .align  2
 slot_of:
         lea     -8(%sp),%sp
@@ -482,7 +486,7 @@ slot_of:
         move.l  %a0,%a2
         move.l  %d0,%d2
         jsr     shared_view_page                  | (0008)
-        bsr.s   key_find
+        jbsr   key_find
         beq.s   8f
         move.l  %a1,-(%sp)
         tst.b   E_TRACK(%a1)
@@ -525,17 +529,17 @@ slot_of:
 pgv_gate:
         move.l  4(%sp),%a0                        | the view
         move.l  8(%sp),%d0
-        bsr.w   slot_of
+        jbsr   slot_of
         tst.l   %d0
         beq.s   9f
         move.l  %d2,-(%sp)
         move.l  %d0,%d2                           | offset
         move.l  %d1,-(%sp)                        | XOR
-        bsr.w   fx_S
+        jbsr   fx_S
         move.l  (%sp)+,%d1
         move.l  %a0,%d0
         beq.s   8f
-        bsr.w   slot_rd
+        jbsr   slot_rd
         eor.l   %d1,%d0
         mvz.b   E_MAX(%a1),%d1                    | a1 = the entry (slot_of)
         cmp.l   %d1,%d0
@@ -565,16 +569,16 @@ enc_gate:
         move.l  %a0,-(%sp)                        | the vtable, for stock's path
         move.l  4(%sp),%a0                        | view
         move.l  8(%sp),%d0                        | id
-        bsr.w   slot_of
+        jbsr   slot_of
         tst.l   %d0
         beq.w   8f
         lea     -12(%sp),%sp                      | +12: delta at 8 + 4 + 12 = 24
         movem.l %d2-%d4,(%sp)
         move.l  %d0,%d2                           | offset
         move.l  %d1,%d3                           | XOR
-        bsr.w   fx_S
+        jbsr   fx_S
         beq.s   7f
-        bsr.w   slot_rd
+        jbsr   slot_rd
         eor.l   %d3,%d0                           | the value as shown
         mvz.b   E_MAX(%a1),%d4                    | a1 = the entry (slot_of)
         cmp.l   %d4,%d0
@@ -594,8 +598,8 @@ enc_gate:
         ble.s   3f
         move.l  %d4,%d0
 3:      eor.l   %d3,%d0
-        bsr.w   slot_wr
-        bsr.w   kit_notify
+        jbsr   slot_wr
+        jbsr   kit_notify
 7:      movem.l (%sp),%d2-%d4
         lea     16(%sp),%sp                       | the saved registers and the vtable
         lea     20(%sp),%sp                       | the call's arguments
@@ -614,11 +618,13 @@ enc_gate:
         | (0x400231b4). So the name is copied in, NUL and all. (The first build
         | constructed a string object there, and the page printed its pointer
         | bytes - the garbled labels seen on hardware, 2026-10-10.)
+
+        .section .ui4,"ax"
         | ------------------------------------------------------------------
         .align  2
 lbl_gate:
         move.l  8(%sp),%d0
-        bsr.w   name_of
+        jbsr   name_of
         beq.s   9f
         move.l  %d0,%a0
         move.l  16(%sp),%a1                       | out
@@ -641,7 +647,7 @@ lbl_gate:
         .align  2
 sname_gate:
         move.l  8(%sp),%d0
-        bsr.w   name_of
+        jbsr   name_of
         beq.s   1f
         rts
 1:      move.l  8(%sp),%d0                        | displaced
@@ -755,7 +761,7 @@ slot_rd:
         rts
 1:      move.l  %d1,-(%sp)
         mvz.w   (%a0,%d2.l),%d0
-        bsr.w   sfield
+        jbsr   sfield
         move.l  (%sp)+,%d1
         rts
 
@@ -819,7 +825,7 @@ snd_word:
         bhi.s   8f
         mulu.w  #SND_SIZE,%d0
         move.l  %d0,%d1
-        bsr.w   fx_S
+        jbsr   fx_S
         beq.s   8f
         add.l   %d1,%a0
         mvz.w   SND_WAV-SND0_FROM_S(%a0),%d0
@@ -843,7 +849,7 @@ name_of:
         move.l  %d0,%a0
         jsr     shared_view_page
         move.l  %d0,%d3                           | page
-        bsr.w   key_find
+        jbsr   key_find
         beq.s   1f
         mvz.b   E_TRACK(%a1),%d0
         cmpi.l  #SOUND,%d0
@@ -852,9 +858,9 @@ name_of:
         bra.s   9f
 3:      move.l  %a1,-(%sp)                        | a sound field: its value
         move.l  %a2,%a0
-        bsr.w   snd_word
+        jbsr   snd_word
         move.l  (%sp)+,%a1
-        bsr.w   sfield
+        jbsr   sfield
         lea     m_names,%a0
         tst.b   E_OFF(%a1)
         beq.s   4f
@@ -884,7 +890,7 @@ name_of:
         bne.s   8f
 2:      move.l  %a1,%d3
         move.l  %a2,%a0
-        bsr.w   snd_word
+        jbsr   snd_word
         move.l  %d0,%d1
         lsr.l   #8,%d1
         cmpi.l  #WAV_SIG,%d1

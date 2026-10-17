@@ -1,7 +1,7 @@
 # Flashing - Analog Four / Analog Keys MK1
 
 The A4 takes one format, a `.syx`, sent like any OS update. **Back up your projects
-first** (Transfer, or C6), and keep the stock `stock/Analog-Four_Analog-Keys_OS1.55.syx`
+first** (Transfer, or C6), and keep the stock `stock/Analog-Four_Analog-Keys_OS1.56.syx`
 at hand.
 
 ## Normal route (Transfer, USB)
@@ -30,7 +30,7 @@ MIDI IN), not USB.
 
 ## Suggested order for a first session
 
-1. `build/A4_OS1.55_control.syx` - optional, two minutes. Stock code, only repacked
+1. `build/A4_OS1.56_control.syx` - optional, two minutes. Stock code, only repacked
    by the tool. If it boots and plays, the packer works on your unit, so any later
    problem is a mod, not the file format.
 2. Your build (`make full`, or your own selection). Go through the checklist at the
@@ -38,7 +38,7 @@ MIDI IN), not USB.
 
 ## Back to stock
 
-Builds carry version 1.55, the same as stock, so returning to stock is a same-version
+Builds carry version 1.56, the same as stock, so returning to stock is a same-version
 reinstall of the official file by either route above.
 
 Your data stays compatible both ways: kits and patterns saved on a modded OS load on

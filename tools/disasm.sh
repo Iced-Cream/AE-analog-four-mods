@@ -1,6 +1,6 @@
 #!/bin/sh
 # Whole-image disassembly of the stock MAIN OS with EMAC decoding (as rytm1_mods-main's
-# `make disasm`). Run from analog_four_main/ after `make build` (which leaves
+# `make disasm`). Run from the project root after `make build` (which leaves
 # build/stock_mainos.bin), or after tools/unpack.py on Windows.
 set -e
 P=$(python3 -c 'import sys; sys.path.insert(0,"tools"); from toolchain import prefix; print(prefix())')

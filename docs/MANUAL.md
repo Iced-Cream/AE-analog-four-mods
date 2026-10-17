@@ -1,4 +1,4 @@
-# Manual - Analog Four / Analog Keys MK1 mods (OS 1.55)
+# Manual - Analog Four / Analog Keys MK1 mods (OS 1.56)
 
 What each mod does on the instrument. Which mods are in your firmware depends on how
 it was built (BUILD.md); `make full` and `make hard` have all of them.
@@ -48,7 +48,7 @@ With KEY SCALE anything but OFF, on that track:
 
 MAJ and MIN restrict notes too (on stock they only steer transposition), so a
 pattern that used MAJ or MIN on stock now has its notes snapped as you play. A
-pattern saved with one of the new scales and opened on stock 1.55 reads KEY SCALE
+pattern saved with one of the new scales and opened on stock 1.56 reads KEY SCALE
 OFF.
 
 ### Limits

@@ -19,7 +19,7 @@ from toolchain import tool
 
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "build"
-STOCK_SYX = ROOT / "stock" / "Analog-Four_Analog-Keys_OS1.55.syx"
+STOCK_SYX = ROOT / "stock" / "Analog-Four_Analog-Keys_OS1.56.syx"
 EFT = ROOT / "vendor" / "elektron-firmware-tool" / "elektron-firmware-tool"
 
 

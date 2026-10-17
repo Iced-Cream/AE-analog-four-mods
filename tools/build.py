@@ -12,7 +12,7 @@ target actually being free, and each detour host still holding its expected
 stock bytes. Any mismatch aborts rather than producing a plausible-looking image.
 
 Only MAIN OS (section 3) is ever rewritten, and never inside the embedded
-bootstrap image (re/symbols.toml [meta], 0x40226958..0x40233a30 on OS 1.55).
+bootstrap image (re/symbols.toml [meta], 0x40226ee8..0x40233fc0 on OS 1.56).
 """
 
 import argparse
@@ -31,7 +31,7 @@ from toolchain import tool
 
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "build"
-STOCK_SYX = ROOT / "stock" / "Analog-Four_Analog-Keys_OS1.55.syx"
+STOCK_SYX = ROOT / "stock" / "Analog-Four_Analog-Keys_OS1.56.syx"
 EFT_DIR = ROOT / "vendor" / "elektron-firmware-tool"
 EFT = EFT_DIR / "elektron-firmware-tool"
 
