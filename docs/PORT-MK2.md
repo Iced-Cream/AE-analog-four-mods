@@ -13,7 +13,7 @@ checked directly.
 | 0002 303 slide | built; [emu] hooks run during playback, no fault in a 10 G soak; the glide itself needs [hw] |
 | 0006 kit FX persistence | built; [measured] same copiers and spare words as the MK1 |
 | 0007 digital path | built; [measured] every host traced by hand (see below); [emu] full/hard boot, "AMP (P 1/2)" then "DIST (P 2/2)" with its knobs, 12-30 G of playback with DIG on and settings changing, no fault |
-| 0008 DIST page | built; [measured] MKII view size and map offset; [emu] the page opens and is edited by its knobs; CHR showed no dial graphic |
+| 0008 DIST page | built; [measured] MKII view size and map offset; [emu] the page opens and is edited by its knobs; [hw] CHR drew nothing until it moved to the PAN knob (see below) |
 | 0010 wave oscillator | built; [measured] noise block, NCO words and chorus index traced; [emu] NOISE page OFF / WAV / CHD and the chord names, relabelling SHP FLD FM |
 
 `make full` and `make hard` use the dead-code pools (cave2, cave4..cave7). An
@@ -83,6 +83,16 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
 - The page table (44 B per page, base 0x401b31e8) holds the same parameter ids on
   every page as the MK1's [measured: all 48 entries compared], so the DIST page's
   ids (50 92 94 95 96 98 63) and 0010's NOISE ids are unchanged.
+- **CHR is knob id 97 (AMP PAN) on the MKII, not 92 (AMP REL).** The knob draw
+  (0x400234c4) hands each knob to its parameter record's draw function (vtable +0x84,
+  0x4009eaaa: record + 36, records of 84 B from 0x41856c44). On the MKII ATK, DEC,
+  SUS and REL are drawn together as the AMP page's envelope graph; REL's own draw
+  (0x400f1d32) only places an envelope sprite, which shows nothing on its own: on the
+  DIST page CHR had a label and no value [emu, hw 2026-10-21]. PAN's draw
+  (0x400f2da4) is a centre-marked line with a marker at x + (v - 64) / 8, tall at 0,
+  64 and 127, so `pgv_gate` now hands three-position knobs 0 / 64 / 127 and CHR shows
+  HARD / RAT / OD as left / centre / right [measured]. The DIST page's ids are
+  50 97 94 95 96 / 98 63; the MK1 keeps 92, which it draws as a dial.
 
 ### 0007 digital path
 

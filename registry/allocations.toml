@@ -538,8 +538,10 @@ size        = 4
 expect      = "401bfab0"
 from_symbol = "s_amp"
 
-# ... and its ten knob ids: DIG CHR DRV BIT SRR / LEV SLD - - -, ids 50 92 94 95
-# 96 / 98 63 (50 and 63 = OSC AM1/AM2, drawn as switches; the rest AMP dials),
+# ... and its ten knob ids: DIG CHR DRV BIT SRR / LEV SLD - - -, ids 50 97 94 95
+# 96 / 98 63 (50 and 63 = OSC AM1/AM2, drawn as switches; 97 = AMP PAN, whose
+# marker shows CHR's three positions; the rest AMP level bars). MK1: CHR = 92 (AMP
+# REL); on the MKII REL is part of the AMP envelope graph and draws nothing alone.
 # which 0007's layer table maps to its settings on this page.
 # MK1: 0x40195294
 [[patch]]
@@ -557,7 +559,7 @@ owner   = "0007-digital-path"
 addr    = 0x401b34dc
 size    = 24
 expect  = "000000000000000000000000000000000000000000000000"
-replace = "0000005c0000005e0000005f00000060000000620000003f"
+replace = "000000610000005e0000005f00000060000000620000003f"
 gate    = "chr"
 
 # MK1: 0x40195298

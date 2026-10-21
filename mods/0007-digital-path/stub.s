@@ -555,9 +555,10 @@ pgv_gate:
         cmp.l   %d1,%d0
         ble.s   1f
         move.l  %d1,%d0                           | clamp (older, wider values)
-1:      subq.l  #2,%d1                            | 3 positions: drawn as 0/63/127
-        bne.s   2f                                | on the dial; switches (max 1)
-        mulu.w  #127,%d0                          | as 0/1 (their max is 0x100)
+1:      subq.l  #2,%d1                            | 3 positions: drawn as 0/64/127
+        bne.s   2f                                | (MKII: CHR's pan marker at left,
+        mulu.w  #127,%d0                          | centre, right); switches (max 1)
+        addq.l  #1,%d0                            | as 0/1 (their max is 0x100)
         lsr.l   #1,%d0
 2:      lsl.l   #8,%d0
         move.l  (%sp)+,%d2
@@ -712,7 +713,10 @@ layer_table:
         .byte   TRK_BASE+F_DIG, 0, TRK_SIZE, 1
         .long   s_dig
         .if     P_CHR
-        .short  P17+92                              | AMP REL dial -> CHR, 3 steps
+        .short  P17+97                              | AMP PAN -> CHR, 3 steps (MKII: the
+                                                    | pan marker shows HARD / RAT / OD as
+                                                    | left / centre / right; REL draws
+                                                    | nothing outside the AMP envelope)
         .byte   CHR_OFF, 0, 1, 2
         .long   s_chr
         .endif

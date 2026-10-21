@@ -35,8 +35,9 @@ Flash `build/A4MK2_OS1.56_full.syx` (or `make hard` for the HARD-only drive).
    stock.
 5. **DIST page.** Track 1, AMP: the title reads "AMP (P 1/2)"; AMP again: "DIST
    (P 2/2)" with DIG CHR DRV BIT SRR / LEV SLD (HARD build: DIG DRV BIT SRR LEV /
-   SLD), edited by turning the knobs (no FUNC). AMP again returns to AMP. Note
-   whether CHR draws a value (in the emulator it showed its label but no dial).
+   SLD), edited by turning the knobs (no FUNC). AMP again returns to AMP. CHR
+   draws a short line with a marker: left = HARD, centre = RAT, right = OD (the
+   first build drew nothing there; fixed 2026-10-21).
 6. **The right track goes digital.** Play tracks 1..4 together. DIG on track 1
    only: track 1's analog dry sound is replaced by its digitised copy, the other
    three are unchanged. Repeat for track 4. *This is the MKII-specific check of
