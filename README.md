@@ -1,7 +1,8 @@
-# Analog Four / Analog Keys MK1 - OS 1.56 mods
+# Analog Four MKII - OS 1.56 mods
 
-Build pipeline that patches the official Analog Four / Analog Keys MK1 OS 1.56
-firmware with extra features :
+This branch (**MK2-OS-1.56**) is the Analog Four **MKII** port of the OS 1.56 mods.
+It patches the official Analog Four MKII OS 1.56 firmware with the same features as
+the MK1 branches:
 
 | mod | what it does |
 |---|---|
@@ -19,9 +20,10 @@ How to flash and get back to stock: [docs/FLASHING.md](docs/FLASHING.md).
 
 ## What you need
 
-- An Analog Four or Analog Keys **MK1** (not the MKII), and the official **OS 1.56**
-  `.syx` from Elektron's website. It is not included here: download it and put it in
-  `stock/` (`stock/SHA256SUMS` lists the exact file the mods are built against).
+- An Analog Four **MKII** and the official **OS 1.56** `.syx` from Elektron's
+  website. It is not included here: download it and put it in `stock/`
+  (`stock/SHA256SUMS` lists the exact file the mods are built against). For the
+  Analog Four / Analog Keys MK1, use the OS-1.56 or OS-1.55 branch.
 - A machine that can run the build: Linux, macOS, or Windows with WSL (Ubuntu).
 - Transfer (Elektron's app) or any SysEx tool to send the firmware.
 
@@ -32,20 +34,23 @@ in unused space of the image plus a few "detours" - jumps from stock code into t
 routines. Every patched location is listed in `registry/allocations.toml` with the
 exact stock bytes it expects, and the build refuses to touch anything that does not
 match. `make verify` then reads the finished `.syx` back and checks every changed
-byte, the untouched bootstrap (the recovery menu), and each detour's return path.
+byte, that the bootstrap (the recovery menu) and the other sections of the file are
+stock, that the MAIN OS still unpacks safely in place, and each detour's return path.
 The firmware stays version 1.56, so going back to stock is a normal reinstall.
 
-## OS versions
+## Devices and OS versions
 
-Each OS has its own branch: **OS-1.56** (this one) and **OS-1.55**. The mods and how
+Each device and OS has its own branch: **MK2-OS-1.56** (this one, Analog Four MKII),
+and **OS-1.56** / **OS-1.55** for the Analog Four / Analog Keys MK1. The mods and how
 they work are the same; the firmware addresses, the free space they use and the
-stock file they are built from differ. Build the branch that matches the stock file
-you have. A build is a complete OS, so flashing an OS-1.55 build onto a unit running
-1.56 (or the reverse) changes its OS version - back up first.
+stock file they are built from differ. Build the branch that matches your unit and
+the stock file you have: an MK1 build is a different file format (ELE2, one
+section) and is not meant for an MKII, nor an MKII build for an MK1.
 
-On 1.56 the bootstrap image grew into one of the free areas 1.55 builds used, so part
-of 0007 lives in routines the firmware contains but never calls (found by static
-analysis and checked in emulator sessions; see docs/PORT-1.56.md and docs/HAZARDS.md).
+How the MKII port was made and what changed: [docs/PORT-MK2.md](docs/PORT-MK2.md).
+As on MK1 1.56, part of 0007 lives in routines the firmware contains but never calls
+(found by static analysis and checked by emulator coverage on the MKII; see
+docs/PORT-MK2.md and docs/HAZARDS.md).
 
 ## Layout
 
@@ -61,10 +66,12 @@ stock/             put the official OS 1.56 .syx here
 
 ## Status
 
-On OS 1.56 the `make hard` build has run the whole first-flash checklist on an
-Analog Four MK1; `make full` (the three drive characters) has been checked in an
-emulator only. On OS 1.55 both have run on the instrument. Other combinations build
-and verify, but have had less play time.
+**MKII: not yet run on an instrument.** `make scale`, `make slide` and the
+scale+slide combination build, verify and run in the emulator (the scale lock works
+there; the slide's glide needs a unit). `make full` / `make hard` build, verify,
+boot and play in the emulator; see docs/PORT-MK2.md and the hardware test guide in
+docs/HWTEST-MK2.md. On the MK1 branches `make hard` has run the whole
+first-flash checklist on an Analog Four MK1.
 
 ## Thanks
 

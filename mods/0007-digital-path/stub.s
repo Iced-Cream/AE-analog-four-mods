@@ -24,16 +24,25 @@
         .equ    F_SLD,      5
         .equ    FRAMES,     32
         .equ    FRAME_SIZE, 32                    | 8 codec slots of 32 bits
-        .equ    FX_STATE4,  0x415c0008            | what fx_block_tail stores
-        .equ    CAP,        0x46804000            | captured tracks, 4 x 32 longs,
-        .equ    HOLD,       0x4680c200            | and their DSP state: free DDR
-                                                  | (unreferenced by stock). Not
-                                                  | cached (ACR0 covers only
-                                                  | 0x40000000..0x43ffffff), so
-                                                  | each access costs a bus round
-                                                  | trip: the per-sample loop works
-                                                  | on a copy on the stack.
-        .equ    PROJECT_FXSETUP, 244 + 0x1030
+        .equ    FX_STATE4,  0x41864a74            | what fx_block_tail stores
+                                                  | (MK1: 0x415c0008)
+        .equ    CAP,        0x47be0000            | captured tracks, 4 x 32 longs,
+        .equ    HOLD,       0x47be0200            | and their DSP state: free DDR
+                                                  | at the MKII's
+                                                  | 0x47be0000..0x47bfffff, which
+                                                  | stock never refers to (the
+                                                  | MK1's 0x4680c000 gap is not
+                                                  | known free on the MKII: its
+                                                  | FX RAM moved). Cached on the
+                                                  | MKII (ACR0 0x4007e020 covers
+                                                  | 0x40000000..0x47ffffff); the
+                                                  | per-sample loop still works on
+                                                  | a copy on the stack.
+        .equ    VOICE0_SLOT, 8                    | track 0's slot in a frame: the
+                                                  | MKII send mix reads slots 2..7
+                                                  | (four voices, then the input;
+                                                  | MK1: 0..3 and 6..7)
+        .equ    PROJECT_FXSETUP, 364 + 0x1030      | MKII: the active kit at project + 364 (MK1 244)
 
         .text
 
@@ -42,7 +51,7 @@
         | ==================================================================
 
         | ------------------------------------------------------------------
-        | track_levels, at `movel %a2@,%d0; macl %d0,%d5,%acc0`: the volume
+        | track_levels, at `movel %a3@,%d0; macl %d0,%d7,%acc0`: the volume
         | loaded for the analog dry VCA words only (the send gain is already
         | written). d2 = track, d1 dead. A track on the digital path gets a dry
         | volume of 0 - what stock computes for VOL 0 - and keeps its capture.
@@ -61,8 +70,8 @@ dry_gate:
         beq.s   1f
         moveq   #0,%d0
         bra.s   2f
-1:      move.l  (%a2),%d0                         | displaced
-2:      mac.l   %d0,%d5,%acc0                     | displaced
+1:      move.l  (%a3),%d0                         | displaced
+2:      mac.l   %d0,%d7,%acc0                     | displaced
         jmp     dry_volume_resume
 
         | ------------------------------------------------------------------
@@ -151,7 +160,8 @@ fxin_gate:
         beq.w   99f
         move.l  %d0,%a2
         lea     TRK_BASE(%a2),%a2                 | track 0's settings
-        move.l  144(%sp),%a3                      | track 0's slot in the frames
+        move.l  144(%sp),%a3                      | the frames
+        addq.l  #VOICE0_SLOT,%a3                  | track 0's slot in them
         move.l  #CAP,%a1
         move.l  #HOLD,%a5                         | &hold[0]
         moveq   #4,%d7                            | tracks left
@@ -741,7 +751,9 @@ s_sld:  .asciz  "SLD"
 s_wav:  .asciz  "WAV"
 
         | ==================================================================
-        | In `cave` (cave2 is full): the knob labels
+        | In `cave` (cave2 is full): the settings' storage helpers. On the
+        | MKII `cave` is 224 B smaller than the MK1's, so name_of and its
+        | names moved out to cave7 (section .ui5, below).
         | ==================================================================
         .section .ui2,"ax"
 
@@ -832,6 +844,11 @@ snd_word:
         rts
 8:      moveq   #0,%d0
         rts
+
+        | ==================================================================
+        | In cave7 (MKII only): the knob labels
+        | ==================================================================
+        .section .ui5,"ax"
 
         | name_of(d0 = id) -> d0 = our label for that knob of the view drawn
         | last (0008's shared_draw_view), Z clear; or Z set. Settings get

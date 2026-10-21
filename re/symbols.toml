@@ -328,20 +328,23 @@ status = "verified"
 evidence = "Installed into the vector table at 0x400002fc by 0x400fe8c8 (movel #0x400fb0d6 -> 0x400002fc). lea %sp@(-236),%sp; moveml %d0-%fp,%sp@ - saves everything - then acks 0xfc04c010, reads the playback DMA position 0xfc045690 to pick one of four buffers, saves the EMAC state, runs the control block, the voice noise (0x400f9912), the FX block (0x400f849c), and returns at 0x400fda70 (rte)."
 
 [data.audio_isr_body]
-addr = 0x400fb572   # MK1 address - NOT YET MAPPED to the MKII (audio path, see docs/PORT-MK2.md)
-mk2_pending = true
+addr = 0x401013c6
+mk1 = 0x400fb572
+mk2 = "checked by hand against the MK1 listing: the MKII prologue is linkw %fp,#-236; moveml %d0-%a5,%sp@ (8 bytes)"
 status = "verified"
-evidence = "audio_isr past its 8-byte prologue: movel #0x7fffffff,%d0."
+evidence = "audio_isr past its 8-byte prologue: movel #0x7fffffff,%d0. (On the MKII the prologue is linkw %fp,#-236; moveml %d0-%a5,%sp@: the frame is addressed through %fp.)"
 
 [data.audio_isr_exit]
-addr = 0x400fdee0   # MK1 address - NOT YET MAPPED to the MKII (audio path, see docs/PORT-MK2.md)
-mk2_pending = true
+addr = 0x401040da
+mk1 = 0x400fdee0
+mk2 = "checked by hand against the MK1 listing: moveml %fp@(-32),%d0-%d6/%a0 (MK1: %sp@(204))"
 status = "verified"
-evidence = "moveml %sp@(204),%d0-%d6/%a0 (4cef017f00cc): the start of the EMAC-state restore; every register is restored from the frame after it, so all are free here."
+evidence = "The start of the EMAC-state restore: moveml %fp@(-32),%d0-%d6/%a0 (MK1: moveml %sp@(204),%d0-%d6/%a0). Every register except %fp is restored from the frame after it (moveml %fp@(-236),%d0-%a5; unlk %fp; rte), so on the MKII all are free here but %fp."
 
 [data.audio_isr_exit_resume]
-addr = 0x400fdee6   # MK1 address - NOT YET MAPPED to the MKII (audio path, see docs/PORT-MK2.md)
-mk2_pending = true
+addr = 0x401040e0
+mk1 = 0x400fdee6
+mk2 = "checked by hand against the MK1 listing"
 status = "verified"
 evidence = "movel #0,%macsr after the moveml."
 
@@ -358,16 +361,18 @@ status = "verified"
 evidence = "Control block, called from audio_isr at 0x400fd544. Per track (d2 = 0..3) it turns the track's volume (%a2@, a2 = %sp@(60) + 4 * track) into (1) the send gain written to the ring 0x80006460 by 0x400f40ee and a pan pair to 0x800062e0 by 0x400f40ba - which the FX block 0x400f849c multiplies with the send levels - and (2) the analog dry VCA words volume x pan L/R, written to 0x800032b0 + 26 * track + 22/24 (0x400f44b0, 0x400f44d6). The CV frame at 0x800032b0 is sent out by 0x40061834 (0x400fd7f2)."
 
 [data.dry_volume_load]
-addr = 0x400f48ee   # MK1 address - NOT YET MAPPED to the MKII (audio path, see docs/PORT-MK2.md)
-mk2_pending = true
+addr = 0x400fa6c4
+mk1 = 0x400f48ee
+mk2 = "checked by hand against the MK1 listing: the MKII holds the volume pointer in a3 and the L gain in d7 (MK1 a2, d5)"
 status = "verified"
-evidence = "movel %a2@,%d0; macl %d0,%d5,%acc0 (2012 aa000800): the volume, loaded for the dry VCA words only - after the send gain has been written. d1 and a0 are dead here (d1 is reloaded at 0x400f4412, a0 clobbered by the call before); d2 is the track."
+evidence = "movel %a3@,%d0; macl %d0,%d7,%acc0 (2013 ae000800): the volume, loaded for the dry VCA words only - after the send gain has been written (0x400fa6a6..0x400fa6c0). d1 and a0 are dead here (d1 is reloaded at 0x400fa6fc, a0 is set from d4 at 0x400fa720 before use); d2 is the track (0..3, 0x400fa654 / 0x400fa74e). The words go to 0x80003d6c + 26 * track + 22/24 (d4)."
 
 [data.dry_volume_resume]
-addr = 0x400f48f4   # MK1 address - NOT YET MAPPED to the MKII (audio path, see docs/PORT-MK2.md)
-mk2_pending = true
+addr = 0x400fa6ca
+mk1 = 0x400f48f4
+mk2 = "checked by hand against the MK1 listing"
 status = "verified"
-evidence = "macl %d0,%d3,%acc1 - the R side; d0 must still hold the volume used."
+evidence = "macl %d0,%d6,%acc1 - the R side; d0 must still hold the volume used."
 
 [data.global_quantize_value_call]
 addr = 0x400dbada
@@ -438,7 +443,9 @@ status = "verified"
 evidence = "The project singleton's storage: project_singleton (0x4012e3fa) tests it and constructs on 0, else returns it. Nonzero for good after boot."
 
 [const.PROJECT_KIT_FX_STORAGE]
-value = 4404
+value = 4524
+mk1 = 4404
+mk2 = "364 + 0x1030 + 16: the MKII's active_kit (0x400a51f6) is project + 364 (the MK1's + 244; the MKII project is 120 bytes longer, 0x3df14), kit_fx_setup (0x4009c6de) is still kit + 0x1030, and the FxSetup vtable (0x401a0b70) +0x28 = 0x4016685c still returns this->+16."
 status = "verified"
 evidence = "244 + 0x1030 + 16: active_kit = project + 244 (0x400a1e6a: addil #244), kit_fx_setup = kit + 0x1030, and the FxSetup's storage pointer is its +16 (vtable +0x28 = 0x4014b34a). All plain arithmetic and loads, so the audio interrupt can follow it."
 
@@ -546,10 +553,11 @@ status = "verified"
 evidence = "Called (no register arguments: it loads its own) by the audio interrupt's control block at 0x400fd7e6, right after the input mixer's four VCA words 0x80003318..0x8000331e are written (0x400fd75e..0x400fd7e0)."
 
 [data.ext_vca_resume]
-addr = 0x400fdc80   # MK1 address - NOT YET MAPPED to the MKII (audio path, see docs/PORT-MK2.md)
-mk2_pending = true
+addr = 0x40103dac
+mk1 = 0x400fdc80
+mk2 = "checked by hand against the MK1 listing: after jsr ext_vca_next (0x40103da6)"
 status = "verified"
-evidence = "The control block after `jsr 0x400f6374` (4eb9 400f 6374, 0x400fd7e6): pea 0x800032b0; jsr 0x40061834 (sends the voice frame), then the noise generator."
+evidence = "The control block after `jsr 0x400fc614` (ext_vca_next, at 0x40103da6): pea 0x80003d6c; jsr 0x400639a4 (sends the voice frame), then the noise generator."
 
 [data.noise_mix_resume]
 addr = 0x400ffe56

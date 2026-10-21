@@ -82,6 +82,8 @@ public class ApplySymbols extends GhidraScript {
         name(0x400f6218L, "pinfo_resume", false);
         name(0x400f6218L, "page_info_resume", false);
         name(0x400fa2b0L, "track_levels", true);
+        name(0x400fa6c4L, "dry_volume_load", false);
+        name(0x400fa6caL, "dry_volume_resume", false);
         name(0x400fc614L, "ext_vca_next", true);
         name(0x400fe1f0L, "chorus", true);
         name(0x400fe1f8L, "chorus_body", false);
@@ -95,6 +97,10 @@ public class ApplySymbols extends GhidraScript {
         name(0x401005b8L, "engine_set_param", true);
         name(0x401005c0L, "engine_set_param_body", false);
         name(0x401013beL, "audio_isr", true);
+        name(0x401013c6L, "audio_isr_body", false);
+        name(0x40103dacL, "ext_vca_resume", false);
+        name(0x401040daL, "audio_isr_exit", false);
+        name(0x401040e0L, "audio_isr_exit_resume", false);
         name(0x401494deL, "project_singleton", true);
         name(0x40171460L, "view_wrap", true);
         name(0x4018471eL, "string_from_cstr", true);
@@ -105,6 +111,6 @@ public class ApplySymbols extends GhidraScript {
         name(0x40214854L, "scale_long_names", false);
         name(0x402148e4L, "scale_short_names", false);
         name(0x418717c8L, "project_ptr", false);
-        println("applied 88 symbols");
+        println("applied 94 symbols");
     }
 }

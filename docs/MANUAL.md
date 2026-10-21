@@ -1,4 +1,8 @@
-# Manual - Analog Four / Analog Keys MK1 mods (OS 1.56)
+# Manual - Analog Four MKII mods (OS 1.56)
+
+(Written for the MK1; the MKII builds are meant to behave the same, see
+docs/PORT-MK2.md for what has been checked. MKII page titles carry the
+page count: AMP shows "AMP (P 1/2)" and the DIST page "DIST (P 2/2)".)
 
 What each mod does on the instrument. Which mods are in your firmware depends on how
 it was built (BUILD.md); `make full` and `make hard` have all of them.

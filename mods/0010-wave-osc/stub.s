@@ -60,32 +60,34 @@
         .equ    BANK_WAV,     SND_WAV + 8         | in the 350-byte records
         .equ    NCHORDS,      13
         .equ    SW_FIRST,     11                  | the first supersaw type
-        .equ    OSC1_NCO,     0x80005f6c          | + 8v: OSC1's NCO word (+4: OSC2)
-        .equ    NOISE_FAD,    0x80005358          | + 2v: the fade word -> FM
-        .equ    NOISE_SNH,    0x80005360          | + 2v: the S&H word -> SHP
-        .equ    NOISE_COL,    0x800050e8          | + 2v: the colour word -> FLD
-        .equ    NOISE_LEV,    0x800050e0          | + 2v: the level word (modulated)
-        .equ    FADE_ENV,     0x80001be8          | + 4v: the fade envelopes
-        .equ    VOICE_TRACK,  0x80005530          | + 4v: the voice's track
-        .equ    BUF0,         0x80001d78          | + 140v: the mix's three sources,
-        .equ    BUF1,         0x80001fa8          | 32 longs each after a 12-byte
-        .equ    BUF2,         0x800021d8          | filter history
+        .equ    OSC1_NCO,     0x80006a2c          | + 8v: OSC1's NCO word (+4: OSC2)
+                                                  | (MK1: 0x80005f6c)
+        .equ    NOISE_FAD,    0x80005e18          | + 2v: the fade word -> FM
+        .equ    NOISE_SNH,    0x80005e20          | + 2v: the S&H word -> SHP
+        .equ    NOISE_COL,    0x80005ba8          | + 2v: the colour word -> FLD
+        .equ    NOISE_LEV,    0x80005ba0          | + 2v: the level word (modulated)
+        .equ    FADE_ENV,     0x80002be8          | + 4v: the fade envelopes
+        .equ    VOICE_TRACK,  0x80005ff0          | + 4v: the voice's track
+        .equ    BUF0,         0x80002d78          | + 140v: the mix's three sources,
+        .equ    BUF1,         0x80002fa8          | 32 longs each after a 12-byte
+        .equ    BUF2,         0x800031d8          | filter history
         .equ    VSTRIDE,      140
         .equ    FRAMES,       32
         .equ    S1,           25728               | sin(pi/2 x) ~ x (S1 + x^2 (S3 +
         .equ    S3,           -10520              | x^2 S5)), Q14, x the triangle
         .equ    S5,           1177
-        | State in free DDR, in the gap below 0007's buffers (any start value
-        | is valid; WMASK and VMODE are written before they are read in every
-        | block). That DDR is not cached (ACR0 covers only 0x40000000 ..
-        | 0x43ffffff), so every access is a bus round trip: it is touched only
-        | once a block, and voice() works in a frame on the (cached) stack.
-        .equ    PMPH,         0x46803010          | 4 longs: the modulators' phases
-        .equ    WMASK,        0x46803028          | byte: bit v = voice v is on
-        .equ    SILENT,       0x46803029          | byte: bit v = v's level was 0
+        | State in free DDR, above 0007's buffers in the MKII's unreferenced
+        | 0x47be0000..0x47bfffff (any start value is valid; WMASK and VMODE
+        | are written before they are read in every block). On the MKII that
+        | DDR is cached (ACR0 0x4007e020 covers 0x40000000..0x47ffffff); it is
+        | still touched only once a block, and voice() works in a frame on the
+        | stack. (MK1: 0x46803010.., uncached there.)
+        .equ    PMPH,         0x47be1010          | 4 longs: the modulators' phases
+        .equ    WMASK,        0x47be1028          | byte: bit v = voice v is on
+        .equ    SILENT,       0x47be1029          | byte: bit v = v's level was 0
                                                   | last block
-        .equ    VMODE,        0x4680302c          | 4 bytes: the voices' mode bytes
-        .equ    NPH,          0x46803080          | 4 x 4 longs: the notes' phases
+        .equ    VMODE,        0x47be102c          | 4 bytes: the voices' mode bytes
+        .equ    NPH,          0x47be1080          | 4 x 4 longs: the notes' phases
                                                   | voice()'s frame (a6, on the
         .equ    P_GAIN,       0                   | stack): fold gain, 0 = none
         .equ    P_K,          4                   | FM depth
@@ -227,7 +229,7 @@ fad_gate:
         | ------------------------------------------------------------------
         .align  2
 cho_gate:
-        mvs.b   0x8000517e,%d0                    | displaced
+        mvs.b   0x80005c3e,%d0                    | displaced (MK1: 0x8000517e)
         bpl.s   1f
         moveq   #0,%d0
 1:      jmp     cho_index_resume
