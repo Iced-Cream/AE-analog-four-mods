@@ -62,7 +62,8 @@ Flash `build/A4MK2_OS1.56_full.syx` (or `make hard` for the HARD-only drive).
     sine -> triangle -> saw -> square; FM adds sidebands at OSC2's pitch.
 12. **Chords.** Knob 4 to CHD: knob 6 names the chord (OCT ... SW2) and the chord
     plays. Save the sound to the pool, load it on another track: the setting comes
-    along.
+    along. Two chord tracks held together keep the UI responsive; a third slows
+    it (the documented limit).
 13. **Chorus.** Chorus send up with its HPF swept by an LFO: no clicks or bursts.
 14. **Back to stock** by Transfer: the unit returns to stock 1.56 and the projects
     load.

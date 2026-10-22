@@ -125,7 +125,9 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   of a release [emu]) is closed, and clears its three sources instead, so a note's
   first block is silent rather than stock noise. [emu]: four idle chord tracks cost
   nothing (idle time back to the stock 51 %, from 36 % with four 4-note chords
-  held); the voices' output while a note sounds is unchanged.
+  held); the voices' output while a note sounds is unchanged. [hw] after the change: two
+  chords held (16-step trigs) leave the UI responsive, three slow it. The owner chose
+  to document that limit rather than trade sound for speed (half-rate chords).
 - **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped

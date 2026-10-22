@@ -200,8 +200,8 @@ cycle, so there is no flanging swirl at the start of the note.
   2-3 %, a 4-note chord or supersaw 3-6 % (sine and a high FLD cost the most). A
   track costs almost nothing while no note sounds on it (its VCA is closed) or its
   noise LEV is 0. On the MKII the budget is tighter than these figures suggest: two
-  chord tracks sounding at once can make the encoders sluggish, and several heavy
-  chord tracks held together can reach the limit.
+  chord tracks sounding at once are the comfortable maximum; with a third the UI
+  starts to slow down [hw 2026-10-22].
 
 ## First-flash checklist
 
