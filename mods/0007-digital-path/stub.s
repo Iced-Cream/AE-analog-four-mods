@@ -572,7 +572,8 @@ pgv_gate:
         | The encoder handler's call of param_apply_delta, with (view, id,
         | delta, FUNC, &flag) pushed and a0 = the view's vtable. While FUNC is
         | held our knobs change our setting by the delta's whole steps (at least
-        | one), the kit is marked edited, and the handler exits without stock's
+        | one; settings of up to 16 positions by exactly one), the kit is marked
+        | edited, and the handler exits without stock's
         | value popup (which would show the stock parameter).
         | ------------------------------------------------------------------
         .align  2
@@ -596,9 +597,11 @@ enc_gate:
         ble.s   4f
         move.l  %d4,%d0
 4:      move.l  24(%sp),%d1
-        asr.l   #8,%d1
-        bne.s   1f
-        moveq   #1,%d1
+        cmpi.l  #15,%d4                           | up to 16 positions: one per turn
+        bls.s   5f                                | (MKII: a quick detent arrives as
+        asr.l   #8,%d1                            | two steps, 0x200, and skipped
+        bne.s   1f                                | WAV / RAT)
+5:      moveq   #1,%d1
         tst.l   24(%sp)
         bpl.s   1f
         moveq   #-1,%d1

@@ -110,6 +110,11 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   in the same order as on the MK1, where the first four are the voices [measured].
   So track t is slot 2 + t, and `fxin_gate` starts at frames + 8 (`VOICE0_SLOT`).
   To confirm on [hw]: a DIG-on track still feeds the delay/reverb.
+- **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
+  scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
+  8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped
+  OFF to CHD past WAV [hw 2026-10-22], so `enc_gate` now moves settings of up to 16
+  positions (CHR, the mode, the chord, the switches) by exactly one per turn.
 - **FX state.** fx_block_tail stores to 0x41864a74 (MK1 0x415c0008).
 - **DDR.** The MK1's free DDR (0x4680xxxx, beside the effect RAM) is not known free
   on the MKII: no 32-bit word in the MKII image points at 0x46800000 or 0x46810000,
