@@ -1,25 +1,27 @@
 # Porting the mods to the Analog Four MKII, OS 1.56 (2026-10-21)
 
-**Status: ported, emulator-checked.** This branch (MK2-OS-1.56) builds every target
+**Status: ported, hardware-tested.** This branch (MK2-OS-1.56) builds every target
 for the Analog Four MKII OS 1.56 and verifies it (`make control scale slide full
-hard`, PASS). Nothing here has run on an MKII yet. Evidence tags as in the rest of
+hard`, PASS). The control, scale+slide and full builds passed all 14 steps of
+docs/HWTEST-MK2.md on the owner's MKII (2026-10-21..22; results and hashes at the end
+of that guide). The HARD build has not been flashed on an MKII. Evidence tags as in the rest of
 the project: [measured] = static analysis of the stock image or tool output,
 [emu] = the rytm-emu A4 emulator (dtboot), [hw] = an MKII unit, [inferred] = not
 checked directly.
 
 | mod | MKII state |
 |---|---|
-| 0001 scale lock | built; [emu] 35 scales + OFF in KEY SCALE, live keys snap, the NOTE encoder steps in-scale |
-| 0002 303 slide | built; [emu] hooks run during playback, no fault in a 10 G soak; the glide itself needs [hw] |
-| 0006 kit FX persistence | built; [measured] same copiers and spare words as the MK1 |
-| 0007 digital path | built; [measured] every host traced by hand (see below); [emu] full/hard boot, "AMP (P 1/2)" then "DIST (P 2/2)" with its knobs, 12-30 G of playback with DIG on and settings changing, no fault |
-| 0008 DIST page | built; [measured] MKII view size and map offset; [emu] the page opens and is edited by its knobs; [hw] CHR drew nothing until it moved to the PAN knob (see below) |
-| 0010 wave oscillator | built; [measured] noise block, NCO words and chorus index traced; [emu] NOISE page OFF / WAV / CHD and the chord names, relabelling SHP FLD FM |
+| 0001 scale lock | hardware-verified [hw 2026-10-21]; [emu] 35 scales + OFF in KEY SCALE, live keys snap, the NOTE encoder steps in-scale |
+| 0002 303 slide | hardware-verified [hw 2026-10-21, after the LEN table fix]; [emu] hooks run during playback, no fault in a 10 G soak; the glide itself needs [hw] |
+| 0006 kit FX persistence | hardware-verified [hw 2026-10-22, step 9]; [measured] same copiers and spare words as the MK1 |
+| 0007 digital path | hardware-verified [hw 2026-10-22, steps 5-10]; [measured] every host traced by hand (see below); [emu] full/hard boot, "AMP (P 1/2)" then "DIST (P 2/2)" with its knobs, 12-30 G of playback with DIG on and settings changing, no fault |
+| 0008 DIST page | hardware-verified [hw 2026-10-22]; [measured] MKII view size and map offset; [emu] the page opens and is edited by its knobs; [hw] CHR drew nothing until it moved to the PAN knob (see below) |
+| 0010 wave oscillator | hardware-verified [hw 2026-10-22, steps 11-13; two sounding chord tracks is the comfortable maximum]; [measured] noise block, NCO words and chorus index traced; [emu] NOISE page OFF / WAV / CHD and the chord names, relabelling SHP FLD FM |
 
 `make full` and `make hard` use the dead-code pools (cave2, cave4..cave7). An
 emulator coverage run on stock showed none of them ever runs, and they were promoted
-to "probably-verified" (2026-10-21; see "Code space"). They have not run on an MKII
-yet: that is step 4 of docs/HWTEST-MK2.md.
+to "probably-verified" (2026-10-21; see "Code space"). The full build has since run
+from them on an MKII (docs/HWTEST-MK2.md, 2026-10-22).
 
 The emulator's A4 voice model muted a voice's effect send along with its closed VCA,
 which made DIG-on tracks silent there; with the send taken before the VCA (an opt-in

@@ -66,12 +66,11 @@ stock/             put the official OS 1.56 .syx here
 
 ## Status
 
-**MKII: not yet run on an instrument.** `make scale`, `make slide` and the
-scale+slide combination build, verify and run in the emulator (the scale lock works
-there; the slide's glide needs a unit). `make full` / `make hard` build, verify,
-boot and play in the emulator; see docs/PORT-MK2.md and the hardware test guide in
-docs/HWTEST-MK2.md. On the MK1 branches `make hard` has run the whole
-first-flash checklist on an Analog Four MK1.
+**MKII: hardware-tested (2026-10-22).** The control, scale+slide and full builds
+have run the hardware test guide (docs/HWTEST-MK2.md) on an Analog Four MKII, all 14
+steps passing; the results and build hashes are at the end of that guide. The HARD
+build shares the full build's code but has not been flashed on an MKII. On the MK1
+branches `make hard` has run the whole first-flash checklist on an Analog Four MK1.
 
 ## Thanks
 

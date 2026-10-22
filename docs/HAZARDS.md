@@ -34,8 +34,8 @@ registry; the build checks a hash of their stock bytes before writing there). Th
 case for them is static - no call, branch, pointer, vtable entry or switch-table case
 reaches them. On the MK1 their twins were also shown never to run in long emulator
 sessions and have since run the mods on hardware. On the MKII the same coverage check
-(108 G instructions, 0 hits in every pool) promoted them to "probably-verified"; they
-have not run on an MKII yet. A new pool starts as "candidate", and `tools/layout.py`
+(108 G instructions, 0 hits in every pool) promoted them to "probably-verified", and
+the full build has since run from them through the MKII hardware test (2026-10-22). A new pool starts as "candidate", and `tools/layout.py`
 refuses to let a feature mod use it until such a check is recorded in its note.
 There is no room left in `cave`.
 

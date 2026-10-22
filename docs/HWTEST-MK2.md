@@ -70,3 +70,19 @@ Flash `build/A4MK2_OS1.56_full.syx` (or `make hard` for the HARD-only drive).
 
 Record the results (with the build's sha256 from `build/manifest_<tag>.json`) in
 the project notes; only then can a mod's status move to `hardware-verified`.
+
+## Results: the owner's MKII, 2026-10-21..22
+
+All 14 steps passed [hw]. Builds as flashed (`syx_sha256` from the manifests):
+
+| step | build | result |
+|---|---|---|
+| 1 | control `249f53b0...` | boots and plays like stock |
+| 2-3 | scale-slide `89131c76...` (after bb512fb) | scale lock as listed; the slide glides. The first scale-slide build cut the slide-from note short: 0002 used the MK1's LEN tick table (fixed in bb512fb) |
+| 4-11 | full, builds of 839c0d6 .. 2c4fd66 | pools run without fault; DIST page, digital path, distortion, level, persistence, slide switch, oscillator. Fixed on the way: CHR drew nothing on AMP REL (moved to PAN, 839c0d6); the stepped knobs skipped and then felt touchy (a3e097c .. 5556bb0); the DIST values now show while turned (2c4fd66). Odd DIST values on a "new" kit were leftover data from another firmware's kit store on the unit; a new project or a cleared kit gives the defaults |
+| 12-13 | full `4ea405a0...` (524920b) | chord sounds survive the pool, a load and a paste; two held chord tracks keep the UI responsive, a third slows it (the documented limit). Before 524920b idle chord tracks used CPU too: two made the encoders sluggish, and one paste to a third track froze the unit once (not reproduced since). Chorus with its HPF swept by sine, square and random LFOs at full depth: edge clicks only, no bursts |
+| 14 | stock 1.56 by Transfer | returns to stock; projects load |
+
+The HARD build (`7b8eab9d...`, the full build with HARD distortion only) was not
+flashed. Earlier silence after a pool load or a paste (step 12, first try) did not
+reproduce on the unit or in the emulator.

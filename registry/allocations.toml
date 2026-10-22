@@ -49,8 +49,8 @@ Evidence, all static, on the MKII 1.56 image (re/mk2/zeroruns.py):
   .bss clear) and 0x40003adc / 0x40003b10 (a variable at 0x40253000, in .bss).
 - 0x40253000 is where both the SRAM copy and the .bss clear start; the gap is below
   both and nothing else writes it.
-The MK1's twin (1952 B there) has run every mod on an MK1. On the MKII: not yet
-run on hardware.
+The MK1's twin (1952 B there) has run every mod on an MK1. On the MKII it has run
+the full build through docs/HWTEST-MK2.md on the owner's unit (2026-10-22).
 """
 
 [[pool]]
@@ -76,7 +76,8 @@ browser, MIX, GLOBAL, TEMPO, NOTES setup, grid and live record, playback on five
 tracks, keyboard, ARP, pattern/bank changes, chains, song mode, PERF, copy/paste,
 MIDI input (not covered: USB, SysEx, the test menus). The same recorder shows the
 range running in the mod builds, so the 0 is real. Promoted to probably-verified on
-the owner's go-ahead (2026-10-21). Not yet run on hardware.
+the owner's go-ahead (2026-10-21). Ran the full build on the owner's MKII through
+docs/HWTEST-MK2.md (2026-10-22).
 """
 
 [[pool]]
@@ -111,7 +112,8 @@ browser, MIX, GLOBAL, TEMPO, NOTES setup, grid and live record, playback on five
 tracks, keyboard, ARP, pattern/bank changes, chains, song mode, PERF, copy/paste,
 MIDI input (not covered: USB, SysEx, the test menus). The same recorder shows the
 range running in the mod builds, so the 0 is real. Promoted to probably-verified on
-the owner's go-ahead (2026-10-21). Not yet run on hardware.
+the owner's go-ahead (2026-10-21). Ran the full build on the owner's MKII through
+docs/HWTEST-MK2.md (2026-10-22).
 """
 
 [[pool]]
@@ -132,7 +134,8 @@ browser, MIX, GLOBAL, TEMPO, NOTES setup, grid and live record, playback on five
 tracks, keyboard, ARP, pattern/bank changes, chains, song mode, PERF, copy/paste,
 MIDI input (not covered: USB, SysEx, the test menus). The same recorder shows the
 range running in the mod builds, so the 0 is real. Promoted to probably-verified on
-the owner's go-ahead (2026-10-21). Not yet run on hardware.
+the owner's go-ahead (2026-10-21). Ran the full build on the owner's MKII through
+docs/HWTEST-MK2.md (2026-10-22).
 """
 
 [[pool]]
@@ -145,8 +148,8 @@ status = "probably-verified"
 note   = """
 MKII 1.56 dead code: 11 small accessors (the scan's run is 0x40056e12..0x40056f52;
 the pool starts at the next 4-byte boundary, as the MK1's did), the twin of the
-MK1's cave6. re/mk2/deadscan_mk2.py: nothing references them. Not yet covered in an
-emulator on the MKII, not run on hardware.
+MK1's cave6. re/mk2/deadscan_mk2.py: nothing references them. (Emulator coverage
+and hardware below.)
 Emulator coverage (2026-10-21, rytm-emu dtboot with a block/step recorder, on
 stock MKII 1.56): never executed in six sessions, 108 G instructions (54 G
 executed), 34,677 distinct 16-byte code lines: boot, every synth page (pressed
@@ -155,7 +158,8 @@ browser, MIX, GLOBAL, TEMPO, NOTES setup, grid and live record, playback on five
 tracks, keyboard, ARP, pattern/bank changes, chains, song mode, PERF, copy/paste,
 MIDI input (not covered: USB, SysEx, the test menus). The same recorder shows the
 range running in the mod builds, so the 0 is real. Promoted to probably-verified on
-the owner's go-ahead (2026-10-21). Not yet run on hardware.
+the owner's go-ahead (2026-10-21). Ran the full build on the owner's MKII through
+docs/HWTEST-MK2.md (2026-10-22).
 """
 
 [[pool]]
@@ -179,7 +183,8 @@ browser, MIX, GLOBAL, TEMPO, NOTES setup, grid and live record, playback on five
 tracks, keyboard, ARP, pattern/bank changes, chains, song mode, PERF, copy/paste,
 MIDI input (not covered: USB, SysEx, the test menus). The same recorder shows the
 range running in the mod builds, so the 0 is real. Promoted to probably-verified on
-the owner's go-ahead (2026-10-21). Not yet run on hardware.
+the owner's go-ahead (2026-10-21). Ran the full build on the owner's MKII through
+docs/HWTEST-MK2.md (2026-10-22).
 """
 
 # --------------------------------------------------------------------- claims
