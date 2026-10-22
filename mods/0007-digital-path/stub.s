@@ -488,6 +488,63 @@ key_find:
         | if the knob is not ours on this view's page. Per-track and sound
         | entries use the view's track and refuse the FX track.
 
+        | (In cave6 with the FX block output: .ui4 is full.)
+        | step_of(d1 = the encoder's delta, 8.8; a1 = the entry; d4 = its max)
+        | -> d1 = the steps to take. Dials take the delta's whole steps (at
+        | least one); switches one per turn. Settings of 3..16 positions (CHR,
+        | the oscillator's mode, the chord) step once per TURN of turning, so a
+        | position takes a few detents, like the Rytm's stepped knobs: the MKII
+        | hands a detent over as 0x100 and a quick one as 0x200, which made
+        | them touchy and skipped WAV / RAT. The turning so far is kept per
+        | knob in free DDR (ACC: the entry's key, then the sum) and starts over
+        | on another knob or a change of direction. Other registers kept.
+        .equ    ACC,  0x47be1100                  | above 0010's state
+        .equ    TURN, 0x300                       | three detents a position
+        .align  2
+step_of:
+        lea     -8(%sp),%sp
+        movem.l %d2/%a0,(%sp)                     | a0 = the setting's base
+        cmpi.l  #15,%d4
+        bhi.s   7f                                | a dial
+        cmpi.l  #1,%d4
+        beq.s   8f                                | a switch
+        lea     ACC,%a0
+        mvz.w   (%a1),%d2                         | this knob's key
+        cmp.l   (%a0),%d2
+        beq.s   1f
+        move.l  %d2,(%a0)                         | another knob: start over
+        clr.l   4(%a0)
+1:      move.l  4(%a0),%d2
+        eor.l   %d1,%d2
+        bpl.s   2f
+        clr.l   4(%a0)                            | the other way: start over
+2:      add.l   4(%a0),%d1
+        move.l  %d1,4(%a0)
+        cmpi.l  #TURN,%d1
+        bge.s   3f
+        cmpi.l  #-TURN,%d1
+        bgt.s   9f
+        moveq   #-1,%d1
+        bra.s   4f
+3:      moveq   #1,%d1
+4:      clr.l   4(%a0)
+        bra.s   6f
+9:      moveq   #0,%d1
+        bra.s   6f
+7:      move.l  %d1,%d2
+        asr.l   #8,%d1
+        bne.s   6f
+        move.l  %d2,%d1                           | under a step: its sign
+8:      tst.l   %d1
+        bmi.s   5f
+        moveq   #1,%d1
+        bra.s   6f
+5:      moveq   #-1,%d1
+6:      movem.l (%sp),%d2/%a0
+        lea     8(%sp),%sp
+        rts
+
+
         .section .ui3,"ax"
         .align  2
 slot_of:
@@ -597,15 +654,8 @@ enc_gate:
         ble.s   4f
         move.l  %d4,%d0
 4:      move.l  24(%sp),%d1
-        cmpi.l  #15,%d4                           | up to 16 positions: one per turn
-        bls.s   5f                                | (MKII: a quick detent arrives as
-        asr.l   #8,%d1                            | two steps, 0x200, and skipped
-        bne.s   1f                                | WAV / RAT)
-5:      moveq   #1,%d1
-        tst.l   24(%sp)
-        bpl.s   1f
-        moveq   #-1,%d1
-1:      add.l   %d1,%d0
+        jbsr   step_of                            | -> whole steps (.dsp2)
+        add.l   %d1,%d0
         bpl.s   2f
         moveq   #0,%d0
 2:      cmp.l   %d4,%d0                           | up to the entry's max

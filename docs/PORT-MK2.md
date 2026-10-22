@@ -113,8 +113,11 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
 - **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped
-  OFF to CHD past WAV [hw 2026-10-22], so `enc_gate` now moves settings of up to 16
-  positions (CHR, the mode, the chord, the switches) by exactly one per turn.
+  OFF to CHD past WAV [hw 2026-10-22]. One detent per position then felt touchy,
+  so `step_of` sums the turning per knob and moves settings of 3..16 positions
+  (CHR, the mode, the chord) one position per three detents (0x300), starting over
+  on another knob or a change of direction; switches toggle once per turn and dials
+  take the delta as before. The running sum lives at 0x47be1100 (free DDR).
 - **FX state.** fx_block_tail stores to 0x41864a74 (MK1 0x415c0008).
 - **DDR.** The MK1's free DDR (0x4680xxxx, beside the effect RAM) is not known free
   on the MKII: no 32-bit word in the MKII image points at 0x46800000 or 0x46810000,
