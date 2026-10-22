@@ -78,6 +78,9 @@ press it again to go back to AMP.
 | 6 | LEV | level of the digital path, ~100 = level with the analog path |
 | 7 | SLD | switch: off = stock slide, on = 303 slide (needs 0002) |
 
+While you turn a knob its label shows the value (DRV BIT SRR LEV as numbers, CHR as
+HRD / RAT / OD), as on the stock pages.
+
 In the **HARD-only build** (`make hard`) there is no CHR knob: the page closes up to
 DIG DRV BIT SRR LEV / SLD, and the drive is always HARD (it sounds exactly like HARD
 in the full build). That build leaves more room and costs less CPU per digital

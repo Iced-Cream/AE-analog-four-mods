@@ -110,8 +110,12 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   in the same order as on the MK1, where the first four are the voices [measured].
   So track t is slot 2 + t, and `fxin_gate` starts at frames + 8 (`VOICE0_SLOT`).
   To confirm on [hw]: a DIG-on track still feeds the delay/reverb.
-- **CHR's value.** While CHR is turned its label reads HRD / RAT / OD, as stock
-  knobs show their value there (the label formatter's text, `chr_name`).
+- **Values while turned.** The knob draw shows the label formatter's text while a
+  knob is turned and the short name otherwise; the formatter is handed the value
+  page_get_value returned, which on the DIST page is ours. So `lbl_gate` now lets
+  stock format DRV BIT SRR LEV (numbers, as the host AMP knobs) and DIG / SLD
+  (switches: the graphic is the value, the label stays), and names CHR's value
+  HRD / RAT / OD itself (`chr_name`) [emu]. The MK1 build keeps the names.
 - **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped

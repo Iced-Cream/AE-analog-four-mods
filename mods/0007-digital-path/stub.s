@@ -696,7 +696,8 @@ enc_gate:
         | bytes - the garbled labels seen on hardware, 2026-10-10.)
 
         .if     P_CHR
-chr_names: .asciz "HRD", "RAT", "OD\0"               | CHR's values, 4 bytes each (.ui4 is full)
+chr_names: .asciz "HRD", "HRD", "RAT", "OD\0"        | CHR's values by value >> 13
+                                                  | (0, 2, 3), 4 bytes each
         .align  2
         .endif
 
@@ -707,14 +708,19 @@ lbl_gate:
         move.l  8(%sp),%d0
         jbsr   name_of
         beq.s   9f
-        .if     P_CHR
-        cmpi.l  #s_chr,%d0                        | CHR, while turned: its value
-        bne.s   2f
+        cmpi.l  #s_dig,%d0                        | the DIST page's knobs: stock
+        bcs.s   2f                                | formats the value it is given,
+        cmpi.l  #s_sld,%d0                        | which is ours (page_get_value),
+        bhi.s   2f                                | as the host knob's: numbers, on
+        .if     P_CHR                             | and off
+        cmpi.l  #s_chr,%d0                        | CHR: HRD / RAT / OD
+        bne.s   9f
         move.l  8(%sp),%d1
         bsr.s   chr_name
-2:
+        .else
+        bra.s   9f
         .endif
-        move.l  %d0,%a0
+2:      move.l  %d0,%a0
         move.l  16(%sp),%a1                       | out
 1:      move.b  (%a0)+,%d0
         move.b  %d0,(%a1)+
@@ -726,34 +732,23 @@ lbl_gate:
         jmp     param_label_body
 
         .if     P_CHR
-        | chr_name(d0 = "CHR", d1 = id) -> d0 = CHR's value as HRD / RAT / OD,
-        | read as page_get_value reads it, for the view drawn last. The label
-        | formatter's text is what the knob draw shows while the knob is turned
-        | (stock knobs show their value there), its short name otherwise.
+        | chr_name(d1 = id) -> d0 = CHR's value as HRD / RAT / OD: what
+        | page_get_value hands the knob draw (0, 0x4000, 0x7f00) >> 13 picks the
+        | name. The label formatter's text is what the knob draw shows while
+        | the knob is turned (stock knobs show their value there), its short
+        | name otherwise.
 chr_name:
-        lea     -8(%sp),%sp
-        movem.l %d0/%d2,(%sp)                     | "CHR" if anything is missing
-        move.l  shared_draw_view,%a0
-        move.l  %d1,%d0
-        jbsr   slot_of                            | (ours: name_of found it)
-        move.l  %d0,%d2                           | offset
-        move.l  %d1,-(%sp)                        | XOR
-        jbsr   fx_S
-        move.l  (%sp)+,%d1
-        move.l  %a0,%d0
-        beq.s   8f
-        jbsr   slot_rd
-        eor.l   %d1,%d0
-        moveq   #2,%d1
-        cmp.l   %d1,%d0
-        bls.s   1f
-        move.l  %d1,%d0
-1:      lsl.l   #2,%d0
+        pea     -1                                | lock
+        move.l  %d1,-(%sp)
+        move.l  shared_draw_view,-(%sp)
+        jsr     pgv_gate
+        lea     12(%sp),%sp
+        moveq   #13,%d1
+        lsr.l   %d1,%d0
+        lsl.l   #2,%d0
         lea     chr_names,%a0
         add.l   %d0,%a0
-        move.l  %a0,(%sp)
-8:      movem.l (%sp),%d0/%d2
-        addq.l  #8,%sp
+        move.l  %a0,%d0
         rts
         .endif
 
