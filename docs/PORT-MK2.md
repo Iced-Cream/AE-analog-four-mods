@@ -116,6 +116,16 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   stock format DRV BIT SRR LEV (numbers, as the host AMP knobs) and DIG / SLD
   (switches: the graphic is the value, the label stays), and names CHR's value
   HRD / RAT / OD itself (`chr_name`) [emu]. The MK1 build keeps the names.
+- **Idle chord tracks.** 0010 computed the oscillator for every voice whose sound
+  had WAV or CHD on and a noise LEV above 0, whether or not a note sounded. On the
+  MKII two such tracks made the encoders sluggish with no pattern running [hw
+  2026-10-22], and pasting a chord sound to a third track once froze the unit [hw,
+  not reproduced since]. wave_gate now skips a voice whose VCA word in the analog
+  control frame (0x80003d82 + 26v, 0x7fff = closed: at rest, and again at the end
+  of a release [emu]) is closed, and clears its three sources instead, so a note's
+  first block is silent rather than stock noise. [emu]: four idle chord tracks cost
+  nothing (idle time back to the stock 51 %, from 36 % with four 4-note chords
+  held); the voices' output while a note sounds is unchanged.
 - **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped
