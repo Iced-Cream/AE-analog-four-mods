@@ -492,7 +492,7 @@ key_find:
         | step_of(d1 = the encoder's delta, 8.8; a1 = the entry; d4 = its max)
         | -> d1 = the steps to take. Dials take the delta's whole steps (at
         | least one); switches one per turn. Settings of 3..16 positions (CHR,
-        | the oscillator's mode, the chord) step once per two turns, each
+        | the oscillator's mode, the chord) step once per TURN turns, each
         | counted as one plain step whatever its speed. That is the encoder
         | profile stock gives stepped parameters (MKII 0x417356f4, the Rytm's
         | BD HARD WAV 0x417e37ac: 6 counts a step, no acceleration [emu]),
@@ -502,7 +502,9 @@ key_find:
         | knob in free DDR (ACC: the entry's key, then the turns) and starts over
         | on another knob or a change of direction. Other registers kept.
         .equ    ACC,  0x47be1100                  | above 0010's state
-        .equ    TURN, 2                           | two plain steps a position
+        .equ    TURN, 3                           | three plain steps a position:
+                                                  | on the unit, AMP SHP took about
+                                                  | 1.5x the turning of TURN 2
         .align  2
 step_of:
         lea     -8(%sp),%sp
@@ -693,6 +695,11 @@ enc_gate:
         | constructed a string object there, and the page printed its pointer
         | bytes - the garbled labels seen on hardware, 2026-10-10.)
 
+        .if     P_CHR
+chr_names: .asciz "HRD", "RAT", "OD\0"               | CHR's values, 4 bytes each (.ui4 is full)
+        .align  2
+        .endif
+
         .section .ui4,"ax"
         | ------------------------------------------------------------------
         .align  2
@@ -700,6 +707,13 @@ lbl_gate:
         move.l  8(%sp),%d0
         jbsr   name_of
         beq.s   9f
+        .if     P_CHR
+        cmpi.l  #s_chr,%d0                        | CHR, while turned: its value
+        bne.s   2f
+        move.l  8(%sp),%d1
+        bsr.s   chr_name
+2:
+        .endif
         move.l  %d0,%a0
         move.l  16(%sp),%a1                       | out
 1:      move.b  (%a0)+,%d0
@@ -710,6 +724,38 @@ lbl_gate:
         move.l  %d2,-(%sp)                        | displaced
         move.l  20(%sp),%d2                       | displaced
         jmp     param_label_body
+
+        .if     P_CHR
+        | chr_name(d0 = "CHR", d1 = id) -> d0 = CHR's value as HRD / RAT / OD,
+        | read as page_get_value reads it, for the view drawn last. The label
+        | formatter's text is what the knob draw shows while the knob is turned
+        | (stock knobs show their value there), its short name otherwise.
+chr_name:
+        lea     -8(%sp),%sp
+        movem.l %d0/%d2,(%sp)                     | "CHR" if anything is missing
+        move.l  shared_draw_view,%a0
+        move.l  %d1,%d0
+        jbsr   slot_of                            | (ours: name_of found it)
+        move.l  %d0,%d2                           | offset
+        move.l  %d1,-(%sp)                        | XOR
+        jbsr   fx_S
+        move.l  (%sp)+,%d1
+        move.l  %a0,%d0
+        beq.s   8f
+        jbsr   slot_rd
+        eor.l   %d1,%d0
+        moveq   #2,%d1
+        cmp.l   %d1,%d0
+        bls.s   1f
+        move.l  %d1,%d0
+1:      lsl.l   #2,%d0
+        lea     chr_names,%a0
+        add.l   %d0,%a0
+        move.l  %a0,(%sp)
+8:      movem.l (%sp),%d0/%d2
+        addq.l  #8,%sp
+        rts
+        .endif
 
         | ------------------------------------------------------------------
         | The parameter sets' short-name getter (vtable +0x74, shared):

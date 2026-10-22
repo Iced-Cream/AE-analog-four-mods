@@ -110,13 +110,16 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   in the same order as on the MK1, where the first four are the voices [measured].
   So track t is slot 2 + t, and `fxin_gate` starts at frames + 8 (`VOICE0_SLOT`).
   To confirm on [hw]: a DIG-on track still feeds the delay/reverb.
+- **CHR's value.** While CHR is turned its label reads HRD / RAT / OD, as stock
+  knobs show their value there (the label formatter's text, `chr_name`).
 - **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped
   OFF to CHD past WAV [hw 2026-10-22]. One detent per position then felt touchy,
   so `step_of` counts the turns per knob and moves settings of 3..16 positions
-  (CHR, the mode, the chord) one position per two turns, each turn counted as one
-  plain step whatever its speed, starting over on another knob or a change of
+  (CHR, the mode, the chord) one position per three turns, each turn counted as one
+  plain step whatever its speed (two felt touchier than AMP SHP by about half
+  [hw 2026-10-22]), starting over on another knob or a change of
   direction. That copies the encoder profile stock gives stepped parameters: the
   MKII's 0x417356f4 and the Rytm 1.74's BD HARD WAV profile 0x417e37ac read 6 counts
   a step with no acceleration, where our host knobs' profile (0x4173572c, as the

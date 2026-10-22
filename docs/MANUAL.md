@@ -71,7 +71,7 @@ press it again to go back to AMP.
 | knob | setting | values |
 |---|---|---|
 | 1 | DIG | switch: off = analog path, on = digital path |
-| 2 | CHR | 3 positions: HARD (left), RAT (middle), OD (right) |
+| 2 | CHR | 3 positions: HARD (left), RAT (middle), OD (right); while turned the label reads HRD / RAT / OD |
 | 3 | DRV | drive into the clipper, 0 = clean |
 | 4 | BIT | bit reduction, 0 = off |
 | 5 | SRR | sample-rate reduction, 0 = off |
