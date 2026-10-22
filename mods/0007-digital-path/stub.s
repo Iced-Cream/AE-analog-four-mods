@@ -492,14 +492,17 @@ key_find:
         | step_of(d1 = the encoder's delta, 8.8; a1 = the entry; d4 = its max)
         | -> d1 = the steps to take. Dials take the delta's whole steps (at
         | least one); switches one per turn. Settings of 3..16 positions (CHR,
-        | the oscillator's mode, the chord) step once per TURN of turning, so a
-        | position takes a few detents, like the Rytm's stepped knobs: the MKII
-        | hands a detent over as 0x100 and a quick one as 0x200, which made
-        | them touchy and skipped WAV / RAT. The turning so far is kept per
-        | knob in free DDR (ACC: the entry's key, then the sum) and starts over
+        | the oscillator's mode, the chord) step once per two turns, each
+        | counted as one plain step whatever its speed. That is the encoder
+        | profile stock gives stepped parameters (MKII 0x417356f4, the Rytm's
+        | BD HARD WAV 0x417e37ac: 6 counts a step, no acceleration [emu]),
+        | where our host knobs have the dials' (0x4173572c: 3 counts, with
+        | acceleration): one plain step was touchy, a quick one (0x200)
+        | skipped WAV / RAT. The turning so far is kept per
+        | knob in free DDR (ACC: the entry's key, then the turns) and starts over
         | on another knob or a change of direction. Other registers kept.
         .equ    ACC,  0x47be1100                  | above 0010's state
-        .equ    TURN, 0x300                       | three detents a position
+        .equ    TURN, 2                           | two plain steps a position
         .align  2
 step_of:
         lea     -8(%sp),%sp
@@ -508,6 +511,11 @@ step_of:
         bhi.s   7f                                | a dial
         cmpi.l  #1,%d4
         beq.s   8f                                | a switch
+        moveq   #1,%d2                            | each turn counts as one plain
+        tst.l   %d1                               | step: no acceleration
+        bpl.s   0f
+        moveq   #-1,%d2
+0:      move.l  %d2,%d1
         lea     ACC,%a0
         mvz.w   (%a1),%d2                         | this knob's key
         cmp.l   (%a0),%d2
@@ -520,9 +528,11 @@ step_of:
         clr.l   4(%a0)                            | the other way: start over
 2:      add.l   4(%a0),%d1
         move.l  %d1,4(%a0)
-        cmpi.l  #TURN,%d1
+        moveq   #TURN,%d2
+        cmp.l   %d2,%d1
         bge.s   3f
-        cmpi.l  #-TURN,%d1
+        neg.l   %d2
+        cmp.l   %d2,%d1
         bgt.s   9f
         moveq   #-1,%d1
         bra.s   4f

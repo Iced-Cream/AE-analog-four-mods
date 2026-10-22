@@ -114,9 +114,13 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped
   OFF to CHD past WAV [hw 2026-10-22]. One detent per position then felt touchy,
-  so `step_of` sums the turning per knob and moves settings of 3..16 positions
-  (CHR, the mode, the chord) one position per three detents (0x300), starting over
-  on another knob or a change of direction; switches toggle once per turn and dials
+  so `step_of` counts the turns per knob and moves settings of 3..16 positions
+  (CHR, the mode, the chord) one position per two turns, each turn counted as one
+  plain step whatever its speed, starting over on another knob or a change of
+  direction. That copies the encoder profile stock gives stepped parameters: the
+  MKII's 0x417356f4 and the Rytm 1.74's BD HARD WAV profile 0x417e37ac read 6 counts
+  a step with no acceleration, where our host knobs' profile (0x4173572c, as the
+  Rytm's SNP) reads 3 counts with acceleration [emu, both read at boot]; switches toggle once per turn and dials
   take the delta as before. The running sum lives at 0x47be1100 (free DDR).
 - **FX state.** fx_block_tail stores to 0x41864a74 (MK1 0x415c0008).
 - **DDR.** The MK1's free DDR (0x4680xxxx, beside the effect RAM) is not known free
