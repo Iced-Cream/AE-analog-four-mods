@@ -106,6 +106,14 @@ wave_mix:
         moveq   #0,%d6                            | voice
 1:      btst    %d6,%d7
         beq.s   2f
+        lea     VOICE_TRACK,%a0                   | a track on dist's digital path
+        move.l  %d6,%d0                           | has its dry VCA word zeroed
+        lsl.l   #2,%d0                            | (DIG mutes the analog dry
+        move.l  (%a0,%d0.l),%d0                   | sound), so the word says
+        lea     dist_set,%a0                      | nothing there: always compute
+        mulu.w  #6,%d0                            | (wave_fad took only voices on
+        tst.b   (%a0,%d0.l)                       | tracks 0..3)
+        bne.s   3f
         move.l  %d6,%d0                           | its VCA closed: nothing can
         mulu.w  #VCA_STRIDE,%d0                   | be heard, so the sources are
         lea     VCA,%a0                           | cleared instead (a block's
