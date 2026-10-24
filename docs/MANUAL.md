@@ -113,7 +113,9 @@ reverb and chorus hear the distorted sound.
   jump).
 - **SRR** holds each sample for 1 + SRR/4 samples (0 = off).
 - **LEV** only trims the digital track against the analog ones: about 100 matches
-  the same sound on the analog path, 127 is about +2 dB above that.
+  the same sound on the analog path, 127 is about +2 dB above that. On the MKII this holds
+  from the middle of the keyboard up; on the lowest notes (around E0) the digitised
+  copy carries much less of the note, and the digital path sounds quieter.
 - The effect sends get the processed signal turned down a little as DRV rises
   (-2.5 dB at DRV 64, -6 dB at 127), because a clipped signal is denser than a clean
   one at the same peak level.
@@ -193,6 +195,11 @@ cycle, so there is no flanging swirl at the start of the note.
   oscillator uses, joins the voice where the overdrive doesn't reach (the stock noise
   behaves the same way).
 - Osc retrig restarts the wave too.
+- **Not with DIG on the same track (MKII).** On a track with 0007's DIG on, WAV and
+  CHD are silent: the MKII build skips the oscillator for voices that look idle, and
+  DIG's muting makes a sounding voice look idle. Use the analog path (DIG off) for the
+  oscillator. The elekloader version in `mk2/` (branch `mk2-elemods`) does not have this
+  limit.
 - The sine is pure (harmonics at -83 dB). Saw and square are not band-limited, so
   they alias on high notes. Folding a square only changes its level (it is flat):
   use the folder on sine and triangle.

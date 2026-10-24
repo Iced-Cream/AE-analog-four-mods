@@ -130,6 +130,14 @@ the live sounds at S - 1352 + 338 t, parameter word 103 at +226) is unchanged
   held); the voices' output while a note sounds is unchanged. [hw] after the change: two
   chords held (16-step trigs) leave the UI responsive, three slow it. The owner chose
   to document that limit rather than trade sound for speed (half-rate chords).
+- **DIG and WAV on one track: silent [hw 2026-10-24].** DIG zeroes the track's dry VCA
+  word, which is the word wave_gate reads to skip an idle voice, so with DIG on the
+  oscillator is skipped while notes play. The fix (compute every DIG track) needs about
+  70 bytes and every pool here is full, so it stays a documented limit of this branch;
+  the elemod port (`mk2/`, wave 1.1) has it.
+- **LEV's level [hw 2026-10-24].** Measured over USB at C4, LEV 98: DIG on is about 1 dB
+  under DIG off (the MK1 calibration holds); at E0 it is about 15 dB under, because the
+  digitised copy carries little of the lowest notes.
 - **Encoder steps.** The MKII's encoder handler is rewritten (per-parameter count
   scaling and acceleration) and hands param_apply_delta whole steps in 8.8: an
   8-count turn arrives as 0x200 [emu]. On the NOISE page's mode knob that jumped
