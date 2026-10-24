@@ -360,14 +360,10 @@ dist_fxin:
         | fx_block, after its output loop (a4 just past the 32 output pairs):
         | each track on the digital path adds its processed voice from
         | dist_cap to both output channels (centre), at
-        |   out += (y >> 4) * LEV * LEV_GAIN / 8   (y = the x-scale sample
-        | from dist_fxin). The MK1's gain, (y >> 2) * LEV * 13 / 32, was set on
-        | its hardware so that LEV ~100 matches the same sound on the analog
-        | path; on an MKII it came out about 15 dB low [hw 2026-10-24, measured
-        | on a low note], so LEV_GAIN is 13 x 5.6. y is taken down 4 bits
-        | first so the product stays inside 32 bits. The displaced store goes
-        | first; a0 and d1 must survive (stock stores them next).
-        .equ    LEV_GAIN,   73
+        |   out += (y >> 2) * LEV * 13 / 32   (y = the x-scale sample from
+        | dist_fxin). Calibrated on hardware (the MK1): LEV ~100 matches the
+        | same sound on the analog path, 127 = +2 dB over it. The displaced
+        | store goes first; a0 and d1 must survive (stock stores them next).
         | ------------------------------------------------------------------
         .align  2
 dist_fxout:
@@ -381,13 +377,13 @@ dist_fxout:
 1:      tst.b   F_DIG(%a2)
         beq.s   8f
         mvz.b   F_LEV(%a2),%d3                    | level
-        mulu.w  #LEV_GAIN,%d3
+        mulu.w  #13,%d3
         lea     -FRAMES*8(%a4),%a3                | the output pairs
         moveq   #FRAMES,%d2
 2:      move.l  (%a1)+,%d0
-        asr.l   #4,%d0
+        asr.l   #2,%d0
         muls.l  %d3,%d0
-        asr.l   #3,%d0
+        asr.l   #5,%d0
         move.l  (%a3),%d1
         add.l   %d0,%d1
         sats.l  %d1
