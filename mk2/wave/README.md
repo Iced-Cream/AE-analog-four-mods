@@ -19,7 +19,9 @@ It plays through the noise path into the analog voice, so the filters, overdrive
 VCA shape it. SHP, FLD, FM and LEV are the stock noise parameters, so locks and LFOs
 work on them; the mode and chord are kept with the sound and cannot be p-locked.
 Saw and square are not band-limited. Two sounding chord tracks are the comfortable
-maximum; a third slows the screen (the image port's measurement on an MKII).
+maximum; a third slows the screen (the image port's measurement on an MKII). It also
+plays on a track with dist's DIG on (1.1): DIG mutes the voice's dry VCA, which 1.0
+(and the image port) read as an idle voice and silenced.
 
 ## What changed from the MK1
 
@@ -44,5 +46,7 @@ maximum; a third slows the screen (the image port's measurement on an MKII).
 In rytm-emu's A4 build (24 Oct 2026), with dist, scale-lock, slide and analoghealth
 (plan check5-ae56, PASS): the NOISE page shows the two knobs, OFF / WAV / CHD and the
 chord names, SHP FLD FM while on, notes play with CHD on, and the setting came back
-after SAVE PROJECT AS and loading the project again. The sound is heard only on a
-unit (the image port's passed on an MKII, 2026-10-22).
+after SAVE PROJECT AS and loading the project again.
+
+On an Analog Four MKII (24 Oct 2026): the same screens, and the setting came back after
+a save and reload; the chord heard with DIG off, and with DIG on from 1.1.

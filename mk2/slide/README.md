@@ -22,5 +22,4 @@ page, kept with the kit. Without dist, every synth track slides this way (the MK
 ## Status
 
 In rytm-emu's A4 build (24 Oct 2026), with dist, scale-lock and wave: a pattern
-played with SLD on for track 1 and no fault. The glide itself is heard only on a
-unit; the image port's passed on an MKII (2026-10-21).
+played with SLD on for track 1 and no fault. On an Analog Four MKII (24 Oct 2026): the slide heard working.

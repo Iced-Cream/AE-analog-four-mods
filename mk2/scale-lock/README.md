@@ -35,5 +35,5 @@ the pattern; a pattern with a new scale opened on stock reads KEY SCALE OFF.
 In rytm-emu's A4 build (24 Oct 2026), core-a4 0.2 with dist, slide, wave and
 analoghealth: KEY SCALE steps OFF, MAJ, MIN, DOR ... and stops at LO37 with each
 name shown; with MAJ on C, the NOTE encoder went C6, F6, B6 (in the scale, several
-steps a turn as turned). Not yet on an MKII as an elemod; the image port passed on
-one (2026-10-21).
+steps a turn as turned). On an Analog Four MKII (24 Oct 2026): the same, KEY SCALE up to LO37 and the NOTE
+encoder stepping in MAJ.

@@ -10,19 +10,16 @@ MK1's own copiers and page hooks (0006, most of 0008) have no counterpart here.
 
 | folder | MK1 mods | what | status |
 |---|---|---|---|
-| [scale-lock](scale-lock/README.md) | 0001 | KEY SCALE with 35 scales; notes and the NOTE encoder kept in the scale | emulator |
-| [slide](slide/README.md) | 0002 | 303 slide: the slide trig on the note you glide from | emulator |
-| [dist](dist/README.md) | 0007, 0008 | DIST page behind AMP: a digital path with distortion per track | emulator |
-| [wave](wave/README.md) | 0010 | the noise generator as a wave or chord oscillator, on the NOISE page | emulator |
+| [scale-lock](scale-lock/README.md) | 0001 | KEY SCALE with 35 scales; notes and the NOTE encoder kept in the scale | hardware |
+| [slide](slide/README.md) | 0002 | 303 slide: the slide trig on the note you glide from | hardware |
+| [dist](dist/README.md) | 0007, 0008 | DIST page behind AMP: a digital path with distortion per track | hardware |
+| [wave](wave/README.md) | 0010 | the noise generator as a wave or chord oscillator, on the NOISE page | hardware |
 
 0006 (kit FX persistence) is core-a4's mod storage here; dist and wave keep their
 settings there.
 
-"Emulator" means built, linked, flashed in rytm-emu's A4 build (analog-emu) and checked
-there by screen (docs below each README); the audio itself has not been heard on an
-MKII from these elemods. The code that makes the sound is the MKII image port's
-(branch `MK2-OS-1.56`, all 14 steps of its hardware test passed on an MKII), so what
-changed is how each mod hooks in and where it keeps its settings.
+"Hardware" means checked in rytm-emu's A4 build first, then on an Analog Four MKII (OS
+1.56, core-a4 0.2, 24 Oct 2026): each README says what was checked and what was not.
 
 ## Building
 

@@ -61,6 +61,7 @@ In rytm-emu's A4 build (24 Oct 2026), core-a4 0.2 with scale-lock, slide, wave a
 analoghealth (plan check5-ae56, PASS): AMP reads "AMP (P 1/2)", AMP again the DIST
 page with DIG CHR DRV BIT SRR / LEV SLD, every knob turns and draws, the long names
 show in the header; notes play with DIG on; the settings came back after a reboot,
-and after SAVE PROJECT AS and loading the project again. Not yet heard on an MKII as
-an elemod: the drive, the effects sends and LEV's level need the unit (the image
-port's passed there, 2026-10-22).
+and after SAVE PROJECT AS and loading the project again. On an Analog Four MKII (24 Oct 2026): the same screens and settings across a save and
+reload. Measured over USB at
+middle C (C4), LEV 98: DIG on is about 1 dB under DIG off, as calibrated on the MK1; at
+E0 about 15 dB under, because the digitised copy carries little of the lowest notes.
