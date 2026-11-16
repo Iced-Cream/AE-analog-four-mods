@@ -45,8 +45,9 @@ dial. Only the drawing changes.
   knobs, D (0x310, the mode) and F (0x311, the chord), mod ids above 0x126 that
   core-a4 0.5 draws, turns and locks. `core_params` answers for both. (1.x drew them
   on the hidden records 37 and 140.)
-- **The names.** wave owns two sites on the parameter sets' name getters (short
-  0x4009e79e, long 0x4009e7c2), which core-a4 0.5 calls for every id it does not name:
+- **The names.** wave names its knobs through core's `core_knob_names` (2.3; up to 2.2
+  two sites on the stock name getters, short 0x4009e79e, long 0x4009e7c2), which core
+  asks before its own names:
   the mode knob is named by its value (its lock param carries no short name, so core
   asks the getters); the chord knob is CHRD, its short name, which is also what a
   Dest knob shows when it points at the chord, and S&H, COL and FAD read SHP, FLD and FM while the active
@@ -60,12 +61,17 @@ dial. Only the drawing changes.
   (ev_render_out) writes each synth track's mode (its trig's lock in its place) and
   chord (core's value read, rounded to a whole chord) into `wave_trk`. A sound saved
   by wave 1.x loads with the oscillator off (1.x kept one 6-bit field).
-- **The oscillator** is the image port's code (the fade hook 0x400ffe04 and the mix
-  hook 0x400ffe50), with its state in this mod's `.bss`. It ran from the chorus gap
+- **The oscillator** is the image port's code, on core-a4mk2-dl's `ev_noise_fade` and
+  `ev_noise_mix` (2.3; up to 2.2 the fade hook 0x400ffe04 and the mix hook
+  0x400ffe50, the same points), with its state in this mod's `.bss`. It ran from the chorus gap
   on the MK1, so a clamp on the chorus index guarded it; running from the mods' RAM
   it needs no clamp.
 
 ## Status
+
+**2.3** (core-a4mk2 0.8 with core-a4mk2-dl's audio events): 2.2's code moved off its four
+OS sites onto core events (`ev_noise_fade`, `ev_noise_mix`, `core_knob_names`). Storage,
+lock codes and CCs unchanged. Built and linted; not yet run in the emulator.
 
 **2.2** (core-a4mk2 0.8 build AW26, with scale-lock, slide and rand-track): on an Analog
 Four MKII on 16 Nov 2026 (hardware test T386): the screens, the settings, and by ear

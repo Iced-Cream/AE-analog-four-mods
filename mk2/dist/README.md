@@ -38,8 +38,9 @@ would XOR every saved LEV with it, so sounds saved by 2.0 would load with other 
 2.1 keeps 2.0's layout.)
 
 **dist and wave cannot share a build** from 2.0: dist takes all 32 bits of a sound's
-room and both answer the knob-name getters. The patcher refuses the pair (the
-name-getter sites overlap). A kit saved by dist 1.0 loads with its dist settings at 0:
+room (up to 2.3 both also hooked the knob-name getters, and the patcher refused the
+pair over those sites; from 2.4 neither has a site, so only the storage room keeps
+them apart). A kit saved by dist 1.0 loads with its dist settings at 0:
 they were kit fields, and 2.0's are sound fields.
 
 ## Knob looks (2.2)
@@ -61,9 +62,9 @@ settings, locks, lock codes and CCs are 2.1's.
   in the header and with a trig held). 1.0 drew them on seven hidden parameter
   records (38, 39, 51, 52, 64, 65, 88) with byte sites on their range and a RAM
   record copy at the first tick; 2.0 needs none of that.
-- **The names.** core-a4 0.5 calls the stock name getters (0x4009e79e short,
-  0x4009e7c2 long) for every id it does not name, so dist's two sites there name only
-  SLD, the one knob without a lock. 1.0 named all seven by checking the caller, which
+- **The names.** Core names every lockable knob itself; SLD, the one knob without a
+  lock, is named through core's `core_knob_names` (2.4; up to 2.3 two sites on the
+  stock name getters 0x4009e79e and 0x4009e7c2). 1.0 named all seven by checking the caller, which
   core 0.5's own name routines hide; the `ae_names` table is gone with it.
 - **The settings** were bytes in the kit's spare FX words (kept by 0006). Here they
   are seven core-a4 sound fields (DIG 1, CHR 2, DRV 7, BIT 7, SRR 7, LEV 7, SLD 1
@@ -72,13 +73,23 @@ settings, locks, lock codes and CCs are 2.1's.
   the MK1's kit bytes were: DRV, BIT, SRR and LEV from core's value read (the sound's
   value or the trig's lock, smoothed, Param Slide and every modulation), DIG and CHR
   the trig's lock or the sound's value. The UI tick keeps SLD for slide.
-- **Audio.** The three audio hooks (the dry volume 0x400fa6c4, the FX block's entry
-  0x400fe73c and its output 0x400feace) and their code are the image port's, reading
+- **Audio.** From 2.4 dist has no OS sites: it runs on core-a4mk2-dl's audio events,
+  `dist_fxin` on `ev_fx_in` and `dist_fxout` on `ev_fx_out` around the effects
+  block's call, and the dry mute through core's `core_dry_mute` (set by
+  `dist_render`). Up to 2.3 these were three hooks (the dry volume 0x400fa6c4, the FX
+  block's entry 0x400fe73c and its output 0x400feace). The code is the image port's, reading
   `dist_set` instead of the kit, with their buffers in this mod's `.bss` instead of
   free DDR.
 - **Encoder steps** for CHR keep the image port's three turns a position.
 
 ## Status
+
+**2.4** (core-a4mk2 0.8 with core-a4mk2-dl's audio events; build DE24 with scale-lock and
+slide): 2.3's sound code, moved off its five OS sites onto core events (`ev_fx_in`,
+`ev_fx_out`, `core_dry_mute`, `core_knob_names`), so a +Drive copy needs no site map.
+Voice v still takes track v's settings, as 2.3. Storage, lock codes, CCs and the
+lockfile are unchanged. Built and linted; the emulator's sample-for-sample compare with
+DL23 comes next, then a listening check before it counts as done.
 
 **2.3** (core-a4mk2 0.7): the MK1's OS-1.56 0007 update (upstream commit ffcdc20,
 26 Oct 2026, hardware-verified on an MK1) on 2.2 (the knob looks): the input low-cut (`hp2`, two
