@@ -93,8 +93,14 @@ test T382): flashes both ways, the DIST page and `dist_set` with DIG off and wit
 HARD, DRV 64, BIT 0, SRR 0, LEV 100, and an A/B listening check by the owner on T1 (four
 notes a bar): B as expected, with an occasional click on the attack of some notes only,
 judged likely the free-running oscillators' phase at note start through the drive, not
-an artefact (not proven). CPU on DL22 79 %. 2.3 itself (with 2.2's knob looks) is not
-yet run.
+an artefact (not proven). CPU on DL22 79 %. 2.3 itself (with 2.2's knob looks; build
+DL23, the same modules with dist 2.3, plans `t-dl23`) passed the emulator gate and ran on the
+unit on 16 Nov 2026 (hardware test T390): flashes both ways, the DIST settings read back
+matching the emulator's, CPU 82.6-82.8 % before any key (heap flat), and the owner's
+listens: DIG on with DRV 0 about the same as DIG off, DRV 127 HARD no artefacts, DRV 64
+HARD with free-running oscillators intermittent attack clicks (every 5-7 notes), and the
+same with oscillator retrig on no clicks. So the attack clicks are the oscillators' phase
+at note start through the drive, not the low-cut.
 
 **2.1** (core-a4mk2 0.7, build AD21 with scale-lock and slide): the same code as 2.0, built and linked with
 core-a4mk2 0.7 (elekloader main, 14 Nov 2026) and the earlier build's lockfile, so the
