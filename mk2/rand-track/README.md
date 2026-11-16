@@ -12,6 +12,10 @@ Random track, AE 0011, ported to the MKII as an elemod.
 - **Hold the track key and press LEFT:** the track comes back as it was before the
   last random line, p-locks included (restored as stock's UNDO CLEAR restores its own
   copy). A pop-up reads RANDOM UNDONE. Only the last track randomized has a copy.
+  As with stock's CLEAR TRACK + UNDO, the track's fine-resolution lock flags are not
+  restored, so a restored lock's fine part is dropped at the next save (kept as stock,
+  decided 2026-11-15). Loading a project, CREATE NEW or a pattern change forgets the
+  copy, so LEFT then does nothing.
 - The FX track is left alone. The CV track takes notes like a synth track. No settings,
   no storage.
 
@@ -21,30 +25,44 @@ play the 303 way (with dist, on the tracks whose SLD is on).
 
 ## What changed from the MK1
 
-- **The addresses.** Every stock routine and site was traced in the MKII 1.56 image in
-  Ghidra (MK1 addresses in brackets in `rand-track.s`): the panel key handler is
-  0x400c8b90 and its key-code read 0x400c8ba2 (the hook); held_tracks 0x40022014;
-  CLEAR TRACK 0x400b9666, UNDO CLEAR 0x400b8656 (whose restore sequence the undo
-  follows: memcpy 0x40077fa0, step_lock_prep 0x400b528e, 945 data bytes, 0x3970 lock
-  bytes, 228 per step); trig_flag_set 0x400b71aa (tp, step, mask, value); the pop-up
-  calls of the grid handler 0x40027f78; the seed read 0x41864b1c (fx_block's first
-  read). The handler, the CLEAR TRACK grid handler and the track's layout (KEY NOTE
-  +0x1c8, KEY SCALE +0x1c9) read as the MK1's apart from addresses.
-- **TRACK + YES / LEFT are free:** in the MKII handler YES (0x44) and LEFT (0x40) fall
-  to the default case, as on the MK1; stock gives them no meaning with a track held.
+- **The key hook is core's.** core-a4mk2 0.8's `ev_track_key` (TrackSelectionView's
+  key virtual 0x400c8b90, the MK1's 0x400c4348) passes the view, the key and whether
+  it is a press; core's helpers give the held track keys, the current track, its
+  TrackPattern and the pop-up. In that handler YES (0x44) and LEFT (0x40) fall to the
+  default case, as on the MK1, so stock gives TRACK + YES / LEFT no meaning there.
+- **The addresses.** The stock routines the action calls were traced in the MKII 1.56
+  image in Ghidra (MK1 addresses in brackets in `rand-track.s`): CLEAR TRACK
+  0x400b9666, UNDO CLEAR 0x400b8656 (whose restore sequence the undo follows: memcpy
+  0x40077fa0, step_lock_prep 0x400b528e, 945 data bytes, 0x3970 lock bytes, 228 per
+  step), trig_flag_set 0x400b71aa (tp, step, mask, value), the seed read 0x41864b1c
+  (fx_block's first read); KEY NOTE +0x1c8 and KEY SCALE +0x1c9.
 - **The undo copy** (15.6 KB) is in this mod's `.bss` (core's mods' area) instead of
   free DDR at a fixed address.
 - **One section.** The MK1 split the code over caves; here it is one `.text`.
-- The hook is the mod's own site, not core's `ev_key`: the action needs the view
-  (the current track and the pop-up) and stock's held-track mask, which `ev_key`
-  does not pass.
+
+## Resources (approved 2026-11-14; the two handlers that forget the copy decided 2026-11-16)
+
+No code sites; one `ev_track_key` handler (order 50) taking only presses of TRACK +
+YES and TRACK + LEFT; an `ev_project` handler (order 50) and an `ev_pattern` handler
+(order 90, never takes a change) that drop the undo copy; core's track helpers; 1,072 B of code and 15,660 B of `.bss`.
+No lock codes, destinations, storage, CCs, NRPNs, pages or settings.
 
 ## Status
 
-**1.0** (core-a4mk2 0.7): builds; lints against core 0.7; links in AD22 (core + dist +
-scale-lock + slide + rand-track) and AW22 (core + wave + scale-lock + slide +
-rand-track) with the AD21 / AW21 lockfiles, storage unchanged. Not yet run in the
-emulator or on a unit.
+**1.2** (core-a4mk2 0.8, upstream as irpina/elekloader 339680d): the undo copy is dropped on a project load or
+CREATE NEW (`ev_project`) and on a pattern change (`ev_pattern`: after it, and before one
+stock makes at once). In 1.1 the copy was matched only to the track pattern object, which
+a load keeps, so LEFT after loading another project put the old project's line into it
+(found on the unit, 2026-11-16). A request for the pattern already playing (stopped, YES
+on the sequencer view re-jumps to it) keeps the copy. Passed the emulator gate (AD25 /
+AW25, 16 Nov 2026); not yet run on a unit.
+
+**1.1** (core-a4mk2 0.8, not final yet): builds; lints against core 0.8; links in
+AD23 (core 0.8 + dist + scale-lock + slide + rand-track) and AW23 (core 0.8 + wave +
+scale-lock + slide + rand-track) with the AD21 / AW21 lockfiles, storage unchanged.
+Emulator-gated on core 0.8 at 97a5ff0 (AD24 / AW24, 14-15 Nov 2026); not yet run on
+a unit. 1.0 (its own key-handler site, core 0.7) was built and linked only, and is
+replaced by 1.1.
 
 Worth checking in the emulator gate: YES and LEFT with a track key held on the main
 screen and on a parameter page (another view could take them first); the pop-ups;
